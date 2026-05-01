@@ -1,0 +1,80 @@
+{
+  "$schema": "/etc/xdg/swaync/configSchema.json",
+  "positionX": "right",
+  "positionY": "top",
+  "layer": "top",
+  "control-center-margin-top": 5,
+  "control-center-margin-bottom": 5,
+  "control-center-margin-right": 5,
+  "control-center-margin-left": 0,
+  "notification-icon-size": 64,
+  "notification-body-image-height": 100,
+  "notification-body-image-width": 200,
+  "timeout": 10,
+  "timeout-low": 5,
+  "timeout-critical": 0,
+  "fit-to-screen": false,
+  "control-center-width": 400,
+  "control-center-height": 600,
+  "notification-window-width": 500,
+  "keyboard-shortcuts": true,
+  "image-visibility": "always",
+  "transition-time": 200,
+  "hide-on-clear": false,
+  "hide-on-touch": true,
+  "notification-visibility": {
+    "app-name": {
+      "state": "enabled",
+      "priority": "low"
+    }
+  },
+  "widgets": [
+    "title",
+    "dnd",
+    "buttons-grid",
+    "mpris",
+    "volume",
+    "backlight",
+    "notifications"
+  ],
+  "widget-config": {
+    "title": {
+      "text": "Notifications",
+      "clear-all-button": true,
+      "button-text": "Clear All"
+    },
+    "dnd": {
+      "text": "Do Not Disturb"
+    },
+    "buttons-grid": {
+      "actions": [
+        {
+          "label": "󰤨  Wi-Fi",
+          "command": "bash -c '~/.config/niri/rofi-toggle.sh network'"
+        },
+        {
+          "label": "󰕾  Audio",
+          "command": "bash -c '~/.config/niri/rofi-toggle.sh volume'"
+        },
+        {
+          "label": "󰂯  Bluetooth",
+          "command": "rofi-bluetooth"
+        },
+        {
+          "label": "󰒲  Settings",
+          "command": "kitty"
+        }
+      ]
+    },
+    "mpris": {
+      "image-size": 96,
+      "image-radius": 12
+    },
+    "volume": {
+      "label": "󰕾"
+    },
+    "backlight": {
+      "label": "󰃠"
+    }
+  }
+}

@@ -1,0 +1,362 @@
+// This config is in the KDL format: https://kdl.dev
+// "/-" comments out the following node.
+// Check the wiki for a full description of the configuration:
+// https://niri-wm.github.io/niri/Configuration:-Introduction
+
+input {
+    keyboard {
+        xkb {}
+    }
+    touchpad {
+        natural-scroll
+        tap
+    }
+}
+
+cursor {
+    xcursor-theme "Bibata-Modern-Ice"
+    xcursor-size 16
+}
+
+output "eDP-1" {
+    scale 1
+    transform "normal"
+    position x=0 y=0
+}
+
+layout {
+    background-color "transparent"
+    gaps 5
+    center-focused-column "never"
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        width 1
+        active-gradient from="#40a02b" to="#a6e3a1" angle=45
+    }
+
+    border {
+        width 1
+        active-gradient from="#40a02b" to="#a6e3a1" angle=45
+        inactive-color "#313244"
+    }
+
+    shadow {
+        on
+        softness 30
+        spread 5
+        offset x=0 y=5
+        color "#0007"
+    }
+}
+
+// spawn-at-startup "waybar"
+spawn-at-startup "swaync"
+// spawn-at-startup "awww-daemon"
+spawn-at-startup "waypaper" "--restore"
+spawn-at-startup "sh" "-c" "wl-paste --watch cliphist store"
+spawn-at-startup "sh" "-c" "/home/winter/.config/niri/launch-dashboard.sh"
+
+prefer-no-csd
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+animations {
+    window-open {
+        spring damping-ratio=0.8 stiffness=500 epsilon=0.0001
+    }
+    window-close {
+        spring damping-ratio=0.8 stiffness=500 epsilon=0.0001
+    }
+    horizontal-view-movement {
+        spring damping-ratio=0.8 stiffness=400 epsilon=0.0001
+    }
+}
+
+blur {
+    passes 2
+    offset 2.0
+    noise 0.01
+    saturation 1.2
+}
+
+window-rule {
+    match app-id="stats-terminal"
+    open-on-workspace "1"
+    default-column-width { proportion 1.0; }
+    opacity 0.70
+    background-effect {
+        blur true
+    }
+}
+
+window-rule {
+    match app-id="stats-terminal" is-active=true
+    opacity 0.80
+    background-effect {
+        blur true
+    }
+}
+
+window-rule {
+    match app-id="system-stats"
+    open-floating true
+    default-column-width { proportion 0.5; }
+    default-window-height { proportion 0.7; }
+}
+
+window-rule {
+    match app-id="pavucontrol"
+    // open-floating true
+}
+
+window-rule {
+    match app-id="network-manager"
+    // open-floating true
+    default-column-width { proportion 0.5; }
+    default-window-height { proportion 0.7; }
+}
+
+window-rule {
+    match app-id="calendar-popup"
+    // open-floating true
+    default-column-width { proportion 0.3; }
+}
+
+window-rule {
+    match app-id="system-stats"
+    background-effect { blur true; }
+}
+window-rule {
+    match app-id="network-manager"
+    background-effect { blur true; }
+}
+window-rule {
+    match app-id="pavucontrol"
+    background-effect { blur true; }
+}
+window-rule {
+    match app-id="calendar-popup"
+    background-effect { blur true; }
+}
+
+window-rule {
+    match {}
+    opacity 0.75
+    background-effect {
+        blur true
+    }
+}
+
+window-rule {
+    match is-active=true
+    opacity 0.95
+    background-effect {
+        blur true
+    }
+}
+
+window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+layer-rule {
+    match namespace="waybar"
+    shadow { off; }
+    opacity 0.99
+    geometry-corner-radius 12
+}
+
+layer-rule {
+    match namespace="mpvpaper"
+    place-within-backdrop true
+}
+
+window-rule {
+    match app-id="swaync-notification-window"
+    background-effect { 
+        blur true 
+    }
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+window-rule {
+    match app-id="mpv"
+    open-floating true
+}
+
+window-rule {
+    match app-id="Spotify"
+    // open-floating true
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 600; }
+}
+
+window-rule {
+    match app-id="calendar-popup"
+    // open-floating true
+    default-column-width { fixed 400; }
+    default-window-height { fixed 300; }
+}
+
+window-rule {
+    match title="(?i)^discord updater$"
+    open-floating true
+}
+
+window-rule {
+    match is-floating=true
+    opacity 0.95
+}
+
+window-rule {
+    match is-floating=true is-active=false
+    opacity 0.4
+    background-effect {
+        blur false
+        xray false
+    }
+}
+
+layer-rule {
+    match namespace="swaync-control-center"
+    background-effect { 
+        blur true 
+    }
+    shadow { off; }
+    geometry-corner-radius 12
+    opacity 0.99
+}
+
+layer-rule {
+    match namespace="swaync-notification-window"
+    shadow { off; }
+}
+
+layer-rule {
+    match namespace="rofi"
+    background-effect {
+        blur true
+    }
+    geometry-corner-radius 20
+    shadow { off; }
+    // border { off; }
+    // focus-ring { off; }
+}
+
+binds {
+    Mod+C { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh clipboard"; }
+    Mod+Shift+Slash { show-hotkey-overlay; }
+    Mod+T { spawn "kitty"; }
+    Mod+E { spawn "kitty" "yazi"; }
+    Mod+V { spawn "sh" "-c" "/home/winter/.config/niri/launch-dashboard.sh"; }
+    Mod+B { spawn "sh" "-c" "pkill waybar || waybar"; }
+    Mod+W { spawn "waypaper" "--random"; }
+    Mod+D { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh drun"; }
+    Mod+S { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh find"; }
+    Mod+G { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh google"; }
+    Mod+A { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh calc"; }
+    Mod+M { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh media"; }
+    Mod+Period { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh emoji"; }
+    Mod+Tab { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh windows"; }
+    Mod+P { spawn "sh" "-c" "hyprpicker -a -f hex"; }
+    Mod+Shift+C { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh configs"; }
+    Mod+X { spawn "bash" "-c" "~/.config/niri/rofi-power.sh"; }
+    Mod+N { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh network"; }
+    Mod+Shift+N { spawn "swaync-client" "-t" "-sw"; }
+    Mod+Shift+V { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh volume"; }
+
+    Mod+R { switch-preset-column-width; }
+    Mod+Shift+R { reset-window-height; }
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+
+    // Mouse bindings
+    Mod+WheelScrollUp      cooldown-ms=150 { focus-workspace-up; }
+    Mod+WheelScrollDown    cooldown-ms=150 { focus-workspace-down; }
+    Mod+Shift+WheelScrollUp   cooldown-ms=150 { focus-column-left; }
+    Mod+Shift+WheelScrollDown cooldown-ms=150 { focus-column-right; }
+    
+    Mod+Print { spawn "bash" "-c" "~/.config/niri/screenshot-area.sh"; }
+    Mod+Q { close-window; }
+    Mod+Shift+Space { toggle-window-floating; }
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+Alt+F { maximize-window-to-edges; }
+
+    // Vim-style navigation
+    Mod+H     { focus-column-left; }
+    Mod+J     { focus-window-down; }
+    Mod+K     { focus-window-up; }
+    Mod+L     { focus-column-right; }
+    Mod+Ctrl+H { move-column-left; }
+    Mod+Ctrl+J { move-window-down; }
+    Mod+Ctrl+K { move-window-up; }
+    Mod+Ctrl+L { move-column-right; }
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+
+    // Vim-style workspace switching
+    Mod+Alt+J { focus-workspace-down; }
+    Mod+Alt+K { focus-workspace-up; }
+
+    Mod+Left { focus-column-left; }
+    Mod+Down { focus-window-down; }
+    Mod+Up { focus-window-up; }
+    Mod+Right { focus-column-right; }
+    Mod+Ctrl+Left { move-column-left; }
+    Mod+Ctrl+Down { move-window-down; }
+    Mod+Ctrl+Up { move-window-up; }
+    Mod+Ctrl+Right { move-column-right; }
+    Mod+Shift+E { quit; }
+    
+    // Default workspace binds
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+Ctrl+1 { move-column-to-workspace 1; }
+    Mod+Ctrl+2 { move-column-to-workspace 2; }
+    Mod+Ctrl+3 { move-column-to-workspace 3; }
+    Mod+Ctrl+4 { move-column-to-workspace 4; }
+    Mod+Ctrl+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+6 { move-column-to-workspace 6; }
+    Mod+Ctrl+7 { move-column-to-workspace 7; }
+    Mod+Ctrl+8 { move-column-to-workspace 8; }
+    Mod+Ctrl+9 { move-column-to-workspace 9; }
+    Mod+Shift+1 { move-window-to-workspace 1; }
+    Mod+Shift+2 { move-window-to-workspace 2; }
+    Mod+Shift+3 { move-window-to-workspace 3; }
+    Mod+Shift+4 { move-window-to-workspace 4; }
+    Mod+Shift+5 { move-window-to-workspace 5; }
+    Mod+Shift+6 { move-window-to-workspace 6; }
+    Mod+Shift+7 { move-window-to-workspace 7; }
+    Mod+Shift+8 { move-window-to-workspace 8; }
+    Mod+Shift+9 { move-window-to-workspace 9; }
+
+    // Screenshot actions
+    F10 { screenshot; }
+    Ctrl+F10 { screenshot-screen; }
+    Alt+F10 { screenshot-window; }
+
+    // Volume control
+    F2 { spawn "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && ~/.local/bin/volume-notify.sh"; }
+    F3 { spawn "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ && ~/.local/bin/volume-notify.sh"; }
+
+    // Brightness control
+    F6 { spawn "sh" "-c" "brightnessctl set 5%- && ~/.local/bin/brightness-notify.sh"; }
+    F7 { spawn "sh" "-c" "brightnessctl set 5%+ && ~/.local/bin/brightness-notify.sh"; }
+}
+
+layer-rule {
+    match namespace="^mpvpaper$"
+    place-within-backdrop true
+}

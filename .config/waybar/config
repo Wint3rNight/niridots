@@ -1,0 +1,95 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 28,
+    "margin-top": 5,
+    "margin-left": 15,
+    "margin-right": 15,
+    "margin-bottom": 0,
+    "spacing": 4,
+    "exclusive": true,
+    "passthrough": false,
+    "all-outputs": true,
+
+    "modules-left": ["niri/workspaces", "custom/spacer"],
+    "modules-center": ["clock"],
+    "modules-right": ["custom/weather", "custom/spacer", "custom/notification", "custom/spacer", "pulseaudio", "network", "cpu", "memory", "battery", "tray"],
+
+    "custom/weather": {
+        "format": "{}",
+        "tooltip": true,
+        "interval": 900,
+        "exec": "/usr/bin/python3 /home/winter/.config/waybar/weather.py",
+        "return-type": "json"
+    },
+
+    "custom/notification": {
+        "tooltip": false,
+        "format": "󰂚",
+        "on-click": "/usr/bin/swaync-client -t",
+        "escape": true
+    },
+
+    "custom/spacer": {
+        "format": "  ",
+        "tooltip": false
+    },
+
+    "niri/workspaces": {
+        "format": "{index}",
+        "on-click": "activate"
+    },
+
+    "clock": {
+        "format": "󱑊 {:%H:%M:%S}",
+        "interval": 1,
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "on-click": "/usr/bin/kitty --class calendar-popup -e sh -c 'cal; read'"
+    },
+
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟",
+        "format-icons": { "default": ["󰕿", "󰖀", "󰕾"] },
+        "on-click": "/home/winter/.local/bin/rofi-audio-menu",
+        "on-click-right": "/usr/bin/pavucontrol",
+        "on-scroll-up": "/usr/bin/wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
+        "on-scroll-down": "/usr/bin/wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
+        "tooltip": true
+    },
+
+    "network": {
+        "format-wifi": "󰤨  {essid}   󰓅  {bandwidthDownBits}",
+        "format-ethernet": "󰈀   󰓅  {bandwidthDownBits}",
+        "format-disconnected": "󰤮",
+        "interval": 2,
+        "on-click": "/home/winter/.local/bin/rofi-wifi-menu",
+        "tooltip-format": "{ifname} via {gwaddr} 󰊗",
+        "tooltip-format-wifi": "{essid} ({signalStrength}%) ",
+        "tooltip-format-ethernet": "{ifname} ",
+        "tooltip-format-disconnected": "Disconnected"
+    },
+
+    "cpu": { 
+        "format": "󰻠 {usage}%",
+        "interval": 2,
+        "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop"
+    },
+
+    "memory": { 
+        "format": "󰍛 {used}G",
+        "interval": 2,
+        "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop"
+    },
+
+    "battery": {
+        "format": "{icon} {capacity}%",
+        "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop"
+    },
+
+    "tray": {
+        "icon-size": 20,
+        "spacing": 10
+    }
+}

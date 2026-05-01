@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+# A simple rofi volume menu using wpctl
+
+# Menu options
+OPTIONS="Toggle Mute\nVolume Up 10%\nVolume Down 10%\nSet 100%\nSet 75%\nSet 50%\nSet 25%"
+
+# Initial row index
+SELECTED_ROW=0
+
+while true; do
+    # Get current volume and mute status
+    STATUS=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+    VOLUME=$(echo "$STATUS" | awk '{print $2 * 100}')
+    MUTED=$(echo "$STATUS" | grep -q "MUTED" && echo "Yes" || echo "No")
+
+    # Display menu and capture both index and text using -format "i s"
+    # -selected-row keeps the cursor on the last chosen item
+    RESULT=$(echo -e "$OPTIONS" | LANG=en_US.UTF-8 rofi -dmenu -i -p "Volume (Vol: $VOLUME%, Muted: $MUTED)" -format "i s" -selected-row "$SELECTED_ROW")
+
+    # Exit if nothing was selected (Esc pressed)
+    if [[ -z "$RESULT" ]]; then
+        break
+    fi
+
+    # Parse the result into the index number and the actual selected string
+    read -r SELECTED_ROW SELECTION <<< "$RESULT"
+
+    case "$SELECTION" in
+        "Toggle Mute")
+            wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+            ;;
+        "Volume Up 10%")
+            wpctl set-volume @DEFAULT_AUDIO_SINK@ 10%+
+            ;;
+        "Volume Down 10%")
+            wpctl set-volume @DEFAULT_AUDIO_SINK@ 10%-
+            ;;
+        "Set 100%")
+            wpctl set-volume @DEFAULT_AUDIO_SINK@ 1.0
+            ;;
+        "Set 75%")
+            wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.75
+            ;;
+        "Set 50%")
+            wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.50
+            ;;
+        "Set 25%")
+            wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.25
+            ;;
+    esac
+
+    # Show notification after each change
+    ~/.local/bin/volume-notify.sh
+done

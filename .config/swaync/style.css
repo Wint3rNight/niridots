@@ -1,0 +1,103 @@
+@define-color bg-col rgba(30, 30, 46, 0.7);
+@define-color bg-col-light rgba(49, 50, 68, 0.8);
+@define-color main-col #cba6f7;
+@define-color text-col #cdd6f4;
+
+* {
+  font-family: "Maple Mono NF", "JetBrainsMono Nerd Font", "Noto Sans";
+  font-size: 11px;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.control-center {
+  background: @bg-col;
+  border-radius: 12px;
+  border: 2px solid @main-col;
+  margin: 10px;
+  padding: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.notification {
+  background: @bg-col-light;
+  border-radius: 12px;
+  color: @text-col;
+  margin: 8px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.notification:hover {
+  background: rgba(69, 71, 90, 0.9);
+  border: 1px solid @main-col;
+  transform: scale(1.02);
+}
+
+.widget-title {
+  color: @main-col;
+  font-size: 1.5rem;
+  margin: 10px;
+}
+
+.widget-volume, .widget-backlight {
+  background: @bg-col-light;
+  padding: 15px;
+  margin: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.widget-volume scale trough, .widget-backlight scale trough {
+  border-radius: 12px;
+  background: #313244;
+  min-height: 12px;
+}
+
+.widget-volume scale highlight, .widget-backlight scale highlight {
+  border-radius: 12px;
+  background: @main-col;
+}
+
+.notification-content {
+  margin: 5px;
+}
+
+.notification-default-action, .notification-action {
+  padding: 5px;
+  margin: 5px;
+  border-radius: 8px;
+  background: @bg-col;
+  color: @text-col;
+}
+
+.notification-default-action:hover, .notification-action:hover {
+  background: @main-col;
+  color: #1e1e2e;
+}
+
+.widget-buttons-grid {
+  background: @bg-col-light;
+  border-radius: 12px;
+  margin: 8px;
+  padding: 10px;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button {
+  background: #313244;
+  border-radius: 8px;
+  color: @text-col;
+  font-size: 13px;
+  margin: 4px;
+  padding: 10px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button:hover {
+  background: @main-col;
+  color: #1e1e2e;
+  border: 1px solid @main-col;
+}
+

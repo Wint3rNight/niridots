@@ -1,0 +1,32 @@
+format = """
+[░▒▓](#89b4fa)\
+[ 󰣇 ](bg:#89b4fa fg:#1e1e2e)\
+[](fg:#89b4fa bg:#313244)\
+$directory\
+[](fg:#313244 bg:#45475a)\
+$git_branch\
+$git_status\
+[](fg:#45475a bg:#585b70)\
+$nodejs\
+$rust\
+$python\
+[](fg:#585b70 bg:#1e1e2e)\
+\n$character"""
+
+[directory]
+style = "bg:#313244 fg:#cdd6f4"
+format = "[ $path ]($style)"
+truncation_length = 3
+
+[git_branch]
+symbol = ""
+style = "bg:#45475a fg:#cdd6f4"
+format = "[[ $symbol $branch ]($style)]"
+
+[git_status]
+style = "bg:#45475a fg:#cdd6f4"
+format = "[[($all_status$ahead_behind )]($style)]"
+
+[character]
+success_symbol = "[󰄛 ](bold #a6e3a1)"
+error_symbol = "[󰄛 ](bold #f38ba8)"

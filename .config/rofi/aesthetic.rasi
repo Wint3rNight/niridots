@@ -1,0 +1,109 @@
+configuration {
+    modi: "drun,run,filebrowser,window";
+    show-icons: true;
+    display-drun: "APPS";
+    display-run: "RUN";
+    display-filebrowser: "FILES";
+    display-window: "WINDOW";
+    drun-display-format: "{name}";
+}
+
+* {
+    bg: #1e1e2eCC;
+    bg-alt: #313244cc;
+    fg: #cdd6f4;
+    accent: #a6e3a1;
+    grey: #6c7086;
+    font: "Maple Mono NF 10";
+    
+    background-color: transparent;
+    text-color: @fg;
+    margin: 0;
+    padding: 0;
+    spacing: 0;
+}
+
+window {
+    width: 900px;
+    height: 500px;
+    background-color: @bg;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 20px;
+}
+
+mainbox {
+    orientation: horizontal;
+    children: [ "leftbox", "listview" ];
+}
+
+leftbox {
+    expand: false;
+    width: 350px;
+    orientation: vertical;
+    children: [ "inputbar", "dummy", "mode-switcher" ];
+    padding: 30px;
+}
+
+dummy {
+    expand: true;
+}
+
+inputbar {
+    background-color: #00000044;
+    border-radius: 12px;
+    padding: 12px;
+    children: [ "entry" ];
+}
+
+entry {
+    placeholder: "󰍉 Search";
+    placeholder-color: @grey;
+}
+
+listview {
+    padding: 30px;
+    background-color: #00000022;
+    columns: 1;
+    lines: 7;
+    spacing: 8px;
+    fixed-height: false;
+}
+
+element {
+    padding: 12px;
+    border-radius: 12px;
+}
+
+element selected {
+    background-color: @accent;
+    text-color: #1e1e2e;
+}
+
+element-icon {
+    size: 32px;
+    margin: 0 15px 0 0;
+}
+
+element-text {
+    vertical-align: 0.5;
+    text-color: inherit;
+}
+
+mode-switcher {
+    spacing: 15px;
+}
+
+button {
+    padding: 12px;
+    background-color: @bg-alt;
+    text-color: @fg;
+    border-radius: 12px;
+    width: 70px;
+    horizontal-align: 0.5;
+}
+
+button selected {
+    background-color: @accent;
+    text-color: #1e1e2e;
+}

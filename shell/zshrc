@@ -1,0 +1,57 @@
+# --- Terminal Rice ---
+eval "$(starship init zsh)"
+eval "$(zoxide init zsh)"
+
+alias ls='lsd'
+alias cat='bat'
+alias top='btop'
+alias fetch='fastfetch'
+
+# Eye-Catching Startup (Cyber Skyline + Full Fetch)
+if [[ -z "$FETCH_DONE" ]]; then
+  clear
+  # Vibrant Banner
+  figlet -f slant "NEO-TOKYO" | lolcat
+  
+  # Cyber Skyline
+  echo -e "\e[1;35m"
+  echo "                .                                            ."
+  echo "       .                 .                 .                          ."
+  echo "                _________________________             ."
+  echo "  .            |   |     |     |     |   |"
+  echo "               |   |     |     |     |   |          .           ."
+  echo "       .       |___|_____|_____|_____|___|"
+  echo "               |                         |                 ."
+  echo "               |   [ ]   [ ]   [ ]   [ ] |      _______"
+  echo "               |                         |     |       |"
+  echo "  .            |   [ ]   [ ]   [ ]   [ ] |     |  [ ]  |          ."
+  echo "               |                         |     |       |"
+  echo "               |   [ ]   [ ]   [ ]   [ ] |     |  [ ]  |"
+  echo "        _______|_________________________|_____|_______|_______"
+  echo "       /                                                       \\"
+  echo "      /                                                         \\"
+  echo "     /___________________________________________________________\\"
+  echo "     |                                                           |"
+  echo "     |   |~|   |~|   |~|   |~|   |~|   |~|   |~|   |~|   |~|   |~| |"
+  echo "     |   |_|   |_|   |_|   |_|   |_|   |_|   |_|   |_|   |_|   |_| |"
+  echo "     |                                                           |"
+  echo "     |___________________________________________________________|"
+  echo "    /                                                             \\"
+  echo "   /     _     _     _     _     _     _     _     _     _     _     \\"
+  echo "  /     (_)   (_)   (_)   (_)   (_)   (_)   (_)   (_)   (_)   (_)     \\"
+  echo " /_______________________________________________________________________\\" | lolcat
+  echo -e "\e[0m"
+
+  # Full Fastfetch info (using a more comprehensive structure)
+  fastfetch --logo none --structure Title:Separator:OS:Host:Board:Chassis:Kernel:Uptime:Processes:Packages:Shell:Display:DE:WM:WMTheme:Theme:Icons:Font:Cursor:Terminal:TerminalFont:CPU:GPU:Memory:Swap:Disk:Battery:PowerAdapter:Locale:Break:Colors
+  
+  export FETCH_DONE=1
+fi
+
+export ELECTRON_OZONE_PLATFORM_HINT=wayland
+
+# Auto-attach to zellij session
+if [[ -z "$ZELLIJ" ]]; then
+    zellij attach -c
+fi
+export PATH="$(npm config get prefix)/bin:$PATH"

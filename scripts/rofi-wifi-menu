@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+# Use rofi to select a wifi network
+
+# Get a list of available wifi networks
+wifi_list=$(nmcli --fields "SECURITY,SSID" device wifi list | sed 1d | sed 's/^  *//' | awk -F'  +' '{ if ($2 != "--") printf "%s  %s\n", $1, $2 }' | sort -u)
+
+# Get the current connection status
+connected=$(nmcli -t -f active,ssid dev wifi | grep '^yes' | cut -d: -f2)
+
+if [ -z "$wifi_list" ]; then
+    notify-send "No WiFi networks found."
+    exit 1
+fi
+
+# Show the list in rofi
+chosen_network=$(echo -e "$wifi_list" | rofi -dmenu -i -p "WiFi" -theme-str 'window { width: 500px; height: 400px; location: northeast; anchor: northeast; x-offset: -15px; y-offset: 45px; } mainbox { children: [ "inputbar", "listview" ]; } listview { columns: 1; lines: 10; }')
+
+# Get the SSID of the chosen network
+# We split by double space to get the second part
+ssid=$(echo "$chosen_network" | awk -F'  +' '{print $2}')
+
+if [ -z "$ssid" ]; then
+    exit 0
+fi
+
+if [ "$ssid" = "$connected" ]; then
+    nmcli device disconnect wlan0
+    notify-send "Disconnected from $ssid"
+else
+    # Check if network is known
+    if nmcli connection show | grep -q "$ssid"; then
+        nmcli connection up "$ssid" --ask
+    else
+        password=$(rofi -dmenu -p "Password for $ssid" -password -theme-str 'window {width: 300px; location: northeast; anchor: northeast; x-offset: -15px; y-offset: 40px;}')
+        if [ -n "$password" ]; then
+            nmcli device wifi connect "$ssid" password "$password"
+        fi
+    fi
+fi

@@ -1,0 +1,88 @@
+* {
+    bg:                         #1e1e2eCC;
+    bg-alt:                     #313244cc;
+    fg:                         #cdd6f4;
+    accent:                     #a6e3a1;
+    background-color:           transparent;
+    text-color:                 @fg;
+}
+
+window {
+    transparency:               "real";
+    location:                   center;
+    anchor:                     center;
+    width:                      800px;
+    height:                     400px;
+    border:                     2px;
+    border-radius:              20px;
+    border-color:               @accent;
+    background-color:           @bg;
+}
+
+mainbox {
+    spacing:                    0px;
+    children:                   [ "listview", "infobox" ];
+    orientation:                horizontal;
+}
+
+listview {
+    columns:                    2;
+    lines:                      3;
+    cycle:                      true;
+    dynamic:                    true;
+    scrollbar:                  false;
+    layout:                     vertical;
+    spacing:                    15px;
+    margin:                     30px;
+}
+
+element {
+    padding:                    30px 0px;
+    border-radius:              15px;
+    background-color:           @bg-alt;
+}
+
+element-text {
+    font:                       "Maple Mono NF 32";
+    background-color:           transparent;
+    text-color:                 inherit;
+    vertical-align:             0.5;
+    horizontal-align:           0.5;
+}
+
+element selected.normal {
+    background-color:           @accent;
+    text-color:                 #1e1e2e;
+}
+
+infobox {
+    expand:                     true;
+    orientation:                vertical;
+    background-color:           #00000066;
+    padding:                    80px 40px;
+    spacing:                    20px;
+    children:                   [ "textbox-user", "textbox-uptime" ];
+}
+
+/* We use the generic 'textbox' type by naming them with a 'textbox-' prefix 
+   or styling them as text-heavy elements */
+
+textbox-user, textbox-uptime {
+    vertical-align:             0.5;
+    horizontal-align:           0.5;
+    border-radius:              10px;
+    padding:                    15px;
+    expand:                     false;
+}
+
+textbox-user {
+    background-color:           #a6e3a133;
+    text-color:                 @accent;
+    font:                       "Maple Mono NF Bold 12";
+}
+
+textbox-uptime {
+    background-color:           #89b4fa33;
+    text-color:                 #89b4fa;
+    font:                       "Maple Mono NF 12";
+}

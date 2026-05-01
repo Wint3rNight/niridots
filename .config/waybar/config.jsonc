@@ -1,0 +1,6 @@
+{
+    "layer": "top",
+    "position": "top",
+    "modules-center": ["clock"],
+    "clock": { "format": "STABLE: {:%H:%M:%S}" }
+}

@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# Use rofi to select an audio output device
+
+# Get a list of available sinks (outputs)
+sinks=$(pactl list short sinks | awk '{print $2}')
+current_sink=$(pactl get-default-sink)
+
+if [ -z "$sinks" ]; then
+    notify-send "No audio outputs found."
+    exit 1
+fi
+
+# Format the list for rofi
+list=""
+for sink in $sinks; do
+    if [ "$sink" = "$current_sink" ]; then
+        list="$list* $sink\n"
+    else
+        list="$list  $sink\n"
+    fi
+done
+
+# Show the list in rofi
+chosen_sink=$(echo -e "$list" | rofi -dmenu -i -p "Audio Output" -theme-str 'window { width: 500px; height: 400px; location: northeast; anchor: northeast; x-offset: -15px; y-offset: 45px; } mainbox { children: [ "inputbar", "listview" ]; } listview { columns: 1; lines: 10; }')
+
+# Get the clean name of the chosen sink
+sink_name=$(echo "$chosen_sink" | sed 's/^[ *]*//')
+
+if [ -z "$sink_name" ]; then
+    exit 0
+fi
+
+pactl set-default-sink "$sink_name"
+notify-send "Audio output set to $sink_name"
