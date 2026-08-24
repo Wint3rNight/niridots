@@ -1,0 +1,42 @@
+layout {
+    default_tab_template {
+        pane size=1 borderless=true {
+            plugin location="zellij:compact-bar"
+        }
+        children
+    }
+
+    tab name="System" focus=true {
+        pane split_direction="vertical" {
+            pane command="btop" size="60%" {
+                args "-u" "200" "--force-utf"
+            }
+            pane split_direction="horizontal" {
+                pane command="tty-clock" size="20%" {
+                    args "-c" "-C" "6"
+                }
+                pane command="cava" size="40%"
+                pane command="cmatrix" size="40%"
+            }
+        }
+    }
+
+    tab name="Dev Hub" {
+        pane split_direction="vertical" {
+            pane name="Git" size="50%"
+            pane command="gh" size="50%" {
+                args "dash"
+            }
+        }
+    }
+
+    tab name="Logs" {
+        pane command="journalctl" {
+            args "-f" "-n" "100"
+        }
+    }
+
+    tab name="Terminal" {
+        pane
+    }
+}

@@ -6,14 +6,14 @@
     "margin-left": 15,
     "margin-right": 15,
     "margin-bottom": 0,
-    "spacing": 4,
+    "spacing": 10,
     "exclusive": true,
     "passthrough": false,
     "all-outputs": true,
 
-    "modules-left": ["niri/workspaces", "custom/spacer"],
+    "modules-left": ["niri/workspaces"],
     "modules-center": ["clock"],
-    "modules-right": ["custom/weather", "custom/spacer", "custom/notification", "custom/spacer", "pulseaudio", "network", "cpu", "memory", "battery", "tray"],
+    "modules-right": ["custom/weather", "custom/notification", "pulseaudio", "network", "cpu", "memory", "battery", "tray"],
 
     "custom/weather": {
         "format": "{}",
@@ -25,14 +25,23 @@
 
     "custom/notification": {
         "tooltip": false,
-        "format": "󰂚",
-        "on-click": "/usr/bin/swaync-client -t",
+        "format": "{icon}",
+        "format-icons": {
+            "notification": "󱅫",
+            "none": "󰂚",
+            "dnd-notification": "󰂛",
+            "dnd-none": "󰂛",
+            "inhibited-notification": "󱅫",
+            "inhibited-none": "󰂚",
+            "dnd-inhibited-notification": "󰂛",
+            "dnd-inhibited-none": "󰂛"
+        },
+        "return-type": "json",
+        "exec-if": "which swaync-client",
+        "exec": "/usr/bin/swaync-client -swb",
+        "on-click": "/usr/bin/swaync-client -t -sw",
+        "on-click-right": "/usr/bin/swaync-client -d -sw",
         "escape": true
-    },
-
-    "custom/spacer": {
-        "format": "  ",
-        "tooltip": false
     },
 
     "niri/workspaces": {
@@ -42,9 +51,10 @@
 
     "clock": {
         "format": "󱑊 {:%H:%M:%S}",
+        "format-alt": "󰃭 {:%a, %d %b %Y}",
         "interval": 1,
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "on-click": "/usr/bin/kitty --class calendar-popup -e sh -c 'cal; read'"
+        "on-click-right": "/usr/bin/kitty --class calendar-popup -e sh -c 'cal; read'"
     },
 
     "pulseaudio": {
@@ -65,26 +75,31 @@
         "interval": 2,
         "on-click": "/home/winter/.local/bin/rofi-wifi-menu",
         "tooltip-format": "{ifname} via {gwaddr} 󰊗",
-        "tooltip-format-wifi": "{essid} ({signalStrength}%) ",
-        "tooltip-format-ethernet": "{ifname} ",
+        "tooltip-format-wifi": "{essid} ({signalStrength}%) ",
+        "tooltip-format-ethernet": "{ifname} ",
         "tooltip-format-disconnected": "Disconnected"
     },
 
-    "cpu": { 
+    "cpu": {
         "format": "󰻠 {usage}%",
         "interval": 2,
         "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop"
     },
 
-    "memory": { 
+    "memory": {
         "format": "󰍛 {used}G",
         "interval": 2,
         "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop"
     },
 
     "battery": {
+        "interval": 30,
+        "states": { "warning": 30, "critical": 15 },
         "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": "󰚥 {capacity}%",
         "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "tooltip-format": "{timeTo}",
         "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop"
     },
 

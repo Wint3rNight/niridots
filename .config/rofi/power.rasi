@@ -43,7 +43,7 @@ element {
 }
 
 element-text {
-    font:                       "Maple Mono NF 32";
+    font:                       "FantasqueSansM Nerd Font 32";
     background-color:           transparent;
     text-color:                 inherit;
     vertical-align:             0.5;
@@ -78,11 +78,11 @@ textbox-user, textbox-uptime {
 textbox-user {
     background-color:           #a6e3a133;
     text-color:                 @accent;
-    font:                       "Maple Mono NF Bold 12";
+    font:                       "FantasqueSansM Nerd Font Bold 12";
 }
 
 textbox-uptime {
     background-color:           #89b4fa33;
     text-color:                 #89b4fa;
-    font:                       "Maple Mono NF 12";
+    font:                       "FantasqueSansM Nerd Font 12";
 }

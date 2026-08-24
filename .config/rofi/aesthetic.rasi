@@ -14,7 +14,7 @@ configuration {
     fg: #cdd6f4;
     accent: #a6e3a1;
     grey: #6c7086;
-    font: "Maple Mono NF 10";
+    font: "FantasqueSansM Nerd Font 10";
     
     background-color: transparent;
     text-color: @fg;

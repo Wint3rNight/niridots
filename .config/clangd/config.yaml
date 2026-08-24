@@ -1,0 +1,45 @@
+# clangd user config (applies to every project; a project's own .clangd is merged on top).
+# https://clangd.llvm.org/config
+
+# CUDA sources: nvcc's flags are not clang flags. Rewrite the compile command so clang 22
+# can parse .cu/.cuh files on this box (CUDA 13.3 at /opt/cuda, RTX 3050 = sm_86).
+If:
+  PathMatch: [.*\.cu, .*\.cuh]
+CompileFlags:
+  Compiler: clang++
+  Add:
+    - -xcuda
+    - --cuda-path=/opt/cuda
+    - --cuda-gpu-arch=sm_86
+    - --no-cuda-version-check        # clang 22 officially knows CUDA <= 12.9
+    - -Wno-unknown-cuda-version
+  Remove:                             # nvcc-only flags clang rejects
+    - -forward-unknown-to-host-compiler
+    - -ccbin*
+    - --compiler-options*
+    - -Xcompiler*
+    - -Xcudafe*
+    - -Xfatbin*
+    - --generate-code*
+    - -gencode*
+    - -arch*
+    - --gpu-architecture*
+    - --expt-relaxed-constexpr
+    - --expt-extended-lambda
+    - --extended-lambda
+    - --diag_suppress*
+    - -rdc=*
+    - -G
+    - -Werror=cross-execution-space-call
+    - -allow-unsupported-compiler
+Diagnostics:
+  Suppress: [variadic_device_fn, attributes_not_allowed]
+
+# Per-repo compile database when the build dir is not literally named "build"
+# (clangd finds build/compile_commands.json on its own). Uncomment after a
+# configure with -DCMAKE_EXPORT_COMPILE_COMMANDS=ON.
+# ---
+# If:
+#   PathMatch: /home/winter/Documents/WinterInOctober/Study/OpenSource/glslang/.*
+# CompileFlags:
+#   CompilationDatabase: /home/winter/Documents/WinterInOctober/Study/OpenSource/glslang/build-opt

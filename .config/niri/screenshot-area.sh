@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
+# Region screenshot: pick an area with slurp, edit it in swappy, save to
+# ~/Pictures/Screenshots.
 
-# Screenshot script using grim, slurp and swappy
-# Allows for region selection and immediate editing
-
-# Create screenshots directory if it doesn't exist
 mkdir -p ~/Pictures/Screenshots
 
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
 FILENAME="$HOME/Pictures/Screenshots/screenshot_${TIMESTAMP}.png"
 
-# Take a screenshot of a region and open in swappy for editing
-# -g specifies the region from slurp
-# - means output to stdout, which we pipe to swappy
-grim -g "$(slurp)" - | swappy -f - -o "$FILENAME"
+# Esc in slurp means "cancel" - do not fall through to grim with an empty region.
+GEOM=$(slurp) || exit 0
+[ -n "$GEOM" ] || exit 0
+
+grim -g "$GEOM" - | swappy -f - -o "$FILENAME"

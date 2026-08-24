@@ -36,3 +36,4 @@ end
 # uv
 fish_add_path "/home/winter/.local/bin"
 export PATH="$(npm config get prefix)/bin:$PATH"
+set -x PATH /opt/cuda/bin $PATH

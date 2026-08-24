@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
+# Pick a config file in rofi and open it in nvim inside a new kitty window.
 
-# Select a config file to edit
 declare -A configs
 configs=(
     ["Niri Config"]="$HOME/.config/niri/config.kdl"
@@ -19,10 +19,8 @@ configs=(
     ["Mime Apps"]="$HOME/.config/mimeapps.list"
 )
 
-# Generate the list of keys and pipe to rofi
 choice=$(printf "%s\n" "${!configs[@]}" | sort | rofi -dmenu -i -p "Edit Config")
+[ -n "$choice" ] || exit 0
 
-if [ -n "$choice" ]; then
-    # Open in kitty with nvim
-    kitty -e nvim "${configs[$choice]}" || xdg-open "${configs[$choice]}"
-fi
+# Detach the editor so this script (and rofi-toggle's state) returns right away.
+setsid -f kitty -e nvim "${configs[$choice]}" >/dev/null 2>&1

@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
+# Ask for a search query in rofi and open it in the default browser.
 
-# Use rofi to get the search query
 QUERY=$(rofi -dmenu -p "Google Search")
+[ -n "$QUERY" ] || exit 0
 
-# If the query is not empty, open it in the default browser
-if [ -n "$QUERY" ]; then
-    # Encode the query for URL usage
-    ENCODED_QUERY=$(echo "$QUERY" | sed 's/ /+/g')
-    xdg-open "https://www.google.com/search?q=$ENCODED_QUERY"
-fi
+# Percent-encode the query so &, #, %, ?, + and non-ASCII survive the URL.
+ENCODED=$(printf '%s' "$QUERY" | jq -sRr @uri)
+xdg-open "https://www.google.com/search?q=$ENCODED"

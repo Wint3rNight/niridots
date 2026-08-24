@@ -30,14 +30,15 @@ layout {
     center-focused-column "never"
     default-column-width { proportion 0.5; }
 
+    // Soft translucent halo just outside the border - this is the "glow".
     focus-ring {
-        width 1
-        active-gradient from="#40a02b" to="#a6e3a1" angle=45
+        width 4
+        active-color "#a6e3a155"
     }
 
     border {
-        width 1
-        active-gradient from="#40a02b" to="#a6e3a1" angle=45
+        width 2
+        active-gradient from="#a6e3a1" to="#94e2d5" angle=45
         inactive-color "#313244"
     }
 
@@ -46,7 +47,9 @@ layout {
         softness 30
         spread 5
         offset x=0 y=5
-        color "#0007"
+        // Active window casts a green glow; inactive keep the plain dark shadow.
+        color "#a6e3a199"
+        inactive-color "#0007"
     }
 }
 
@@ -59,6 +62,11 @@ spawn-at-startup "sh" "-c" "/home/winter/.config/niri/launch-dashboard.sh"
 
 prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+// Laptop lid
+switch-events {
+    lid-close { spawn "systemctl" "suspend"; }
+}
 
 animations {
     window-open {
@@ -79,69 +87,19 @@ blur {
     saturation 1.2
 }
 
-window-rule {
-    match app-id="stats-terminal"
-    open-on-workspace "1"
-    default-column-width { proportion 1.0; }
-    opacity 0.70
-    background-effect {
-        blur true
-    }
-}
+// ---------------------------------------------------------------------------
+// Window rules
+//
+// Niri applies rules top to bottom and the LAST matching rule wins for each
+// property. So the catch-all defaults live at the top and the app-specific
+// rules below them can override.
+// ---------------------------------------------------------------------------
 
+// Defaults for every window
 window-rule {
-    match app-id="stats-terminal" is-active=true
-    opacity 0.80
-    background-effect {
-        blur true
-    }
-}
-
-window-rule {
-    match app-id="system-stats"
-    open-floating true
-    default-column-width { proportion 0.5; }
-    default-window-height { proportion 0.7; }
-}
-
-window-rule {
-    match app-id="pavucontrol"
-    // open-floating true
-}
-
-window-rule {
-    match app-id="network-manager"
-    // open-floating true
-    default-column-width { proportion 0.5; }
-    default-window-height { proportion 0.7; }
-}
-
-window-rule {
-    match app-id="calendar-popup"
-    // open-floating true
-    default-column-width { proportion 0.3; }
-}
-
-window-rule {
-    match app-id="system-stats"
-    background-effect { blur true; }
-}
-window-rule {
-    match app-id="network-manager"
-    background-effect { blur true; }
-}
-window-rule {
-    match app-id="pavucontrol"
-    background-effect { blur true; }
-}
-window-rule {
-    match app-id="calendar-popup"
-    background-effect { blur true; }
-}
-
-window-rule {
-    match {}
     opacity 0.75
+    geometry-corner-radius 12
+    clip-to-geometry true
     background-effect {
         blur true
     }
@@ -150,47 +108,49 @@ window-rule {
 window-rule {
     match is-active=true
     opacity 0.95
+}
+
+// Floating windows
+window-rule {
+    match is-floating=true
+    opacity 0.95
+}
+
+window-rule {
+    match is-floating=true is-active=false
+    opacity 0.7
     background-effect {
-        blur true
+        blur false
+        xray false
     }
 }
 
+// Dashboard (launch-dashboard.sh)
 window-rule {
-    geometry-corner-radius 12
-    clip-to-geometry true
-}
-
-layer-rule {
-    match namespace="waybar"
-    shadow { off; }
-    opacity 0.99
-    geometry-corner-radius 12
-}
-
-layer-rule {
-    match namespace="mpvpaper"
-    place-within-backdrop true
+    match app-id="stats-terminal"
+    open-on-workspace "1"
+    default-column-width { proportion 1.0; }
+    opacity 0.70
 }
 
 window-rule {
-    match app-id="swaync-notification-window"
-    background-effect { 
-        blur true 
-    }
-    geometry-corner-radius 12
-    clip-to-geometry true
+    match app-id="stats-terminal" is-active=true
+    opacity 0.80
 }
 
+// Popups launched from waybar
 window-rule {
-    match app-id="mpv"
+    match app-id="system-stats"
     open-floating true
+    default-column-width { proportion 0.5; }
+    default-window-height { proportion 0.7; }
 }
 
 window-rule {
-    match app-id="Spotify"
+    match app-id="network-manager"
     // open-floating true
-    default-column-width { fixed 1000; }
-    default-window-height { fixed 600; }
+    default-column-width { proportion 0.5; }
+    default-window-height { proportion 0.7; }
 }
 
 window-rule {
@@ -200,29 +160,44 @@ window-rule {
     default-window-height { fixed 300; }
 }
 
+// Apps
+window-rule {
+    match app-id="Spotify"
+    // open-floating true
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 600; }
+}
+
+window-rule {
+    match app-id="mpv"
+    open-floating true
+}
+
 window-rule {
     match title="(?i)^discord updater$"
     open-floating true
 }
 
-window-rule {
-    match is-floating=true
-    opacity 0.95
+// ---------------------------------------------------------------------------
+// Layer rules (bars, notifications, launchers, wallpaper)
+// ---------------------------------------------------------------------------
+
+layer-rule {
+    match namespace="waybar"
+    shadow { off; }
+    opacity 0.99
+    geometry-corner-radius 12
 }
 
-window-rule {
-    match is-floating=true is-active=false
-    opacity 0.4
-    background-effect {
-        blur false
-        xray false
-    }
+layer-rule {
+    match namespace="^mpvpaper$"
+    place-within-backdrop true
 }
 
 layer-rule {
     match namespace="swaync-control-center"
-    background-effect { 
-        blur true 
+    background-effect {
+        blur true
     }
     shadow { off; }
     geometry-corner-radius 12
@@ -279,13 +254,15 @@ binds {
     Mod+WheelScrollDown    cooldown-ms=150 { focus-workspace-down; }
     Mod+Shift+WheelScrollUp   cooldown-ms=150 { focus-column-left; }
     Mod+Shift+WheelScrollDown cooldown-ms=150 { focus-column-right; }
-    
+
     Mod+Print { spawn "bash" "-c" "~/.config/niri/screenshot-area.sh"; }
     Mod+Q { close-window; }
     Mod+Shift+Space { toggle-window-floating; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+Alt+F { maximize-window-to-edges; }
+    Mod+O { toggle-overview; }
+    Mod+Shift+T { toggle-column-tabbed-display; }
 
     // Vim-style navigation
     Mod+H     { focus-column-left; }
@@ -296,12 +273,17 @@ binds {
     Mod+Ctrl+J { move-window-down; }
     Mod+Ctrl+K { move-window-up; }
     Mod+Ctrl+L { move-column-right; }
+    Mod+Shift+H { move-column-left; }
+    Mod+Shift+J { move-window-down; }
+    Mod+Shift+K { move-window-up; }
+    Mod+Shift+L { move-column-right; }
     Mod+BracketLeft  { consume-or-expel-window-left; }
     Mod+BracketRight { consume-or-expel-window-right; }
 
     // Vim-style workspace switching
     Mod+Alt+J { focus-workspace-down; }
     Mod+Alt+K { focus-workspace-up; }
+    Mod+Escape { focus-workspace-previous; }
 
     Mod+Left { focus-column-left; }
     Mod+Down { focus-window-down; }
@@ -312,7 +294,7 @@ binds {
     Mod+Ctrl+Up { move-window-up; }
     Mod+Ctrl+Right { move-column-right; }
     Mod+Shift+E { quit; }
-    
+
     // Default workspace binds
     Mod+1 { focus-workspace 1; }
     Mod+2 { focus-workspace 2; }
@@ -343,9 +325,9 @@ binds {
     Mod+Shift+9 { move-window-to-workspace 9; }
 
     // Screenshot actions
-    F10 { screenshot; }
-    Ctrl+F10 { screenshot-screen; }
-    Alt+F10 { screenshot-window; }
+    Print { screenshot; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print { screenshot-window; }
 
     // Volume control
     F2 { spawn "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && ~/.local/bin/volume-notify.sh"; }
@@ -354,9 +336,15 @@ binds {
     // Brightness control
     F6 { spawn "sh" "-c" "brightnessctl set 5%- && ~/.local/bin/brightness-notify.sh"; }
     F7 { spawn "sh" "-c" "brightnessctl set 5%+ && ~/.local/bin/brightness-notify.sh"; }
-}
 
-layer-rule {
-    match namespace="^mpvpaper$"
-    place-within-backdrop true
+    // Hardware media keys (also work while the screen is locked)
+    XF86AudioRaiseVolume  allow-when-locked=true { spawn "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ && ~/.local/bin/volume-notify.sh"; }
+    XF86AudioLowerVolume  allow-when-locked=true { spawn "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && ~/.local/bin/volume-notify.sh"; }
+    XF86AudioMute         allow-when-locked=true { spawn "sh" "-c" "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && ~/.local/bin/volume-notify.sh"; }
+    XF86AudioMicMute      allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+    XF86AudioPlay         allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioNext         allow-when-locked=true { spawn "playerctl" "next"; }
+    XF86AudioPrev         allow-when-locked=true { spawn "playerctl" "previous"; }
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "sh" "-c" "brightnessctl set 5%+ && ~/.local/bin/brightness-notify.sh"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "sh" "-c" "brightnessctl set 5%- && ~/.local/bin/brightness-notify.sh"; }
 }

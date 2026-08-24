@@ -1,10 +1,10 @@
 @define-color bg-col rgba(30, 30, 46, 0.7);
 @define-color bg-col-light rgba(49, 50, 68, 0.8);
-@define-color main-col #cba6f7;
+@define-color main-col #a6e3a1;
 @define-color text-col #cdd6f4;
 
 * {
-  font-family: "Maple Mono NF", "JetBrainsMono Nerd Font", "Noto Sans";
+  font-family: "FantasqueSansM Nerd Font", "Noto Sans";
   font-size: 11px;
   font-weight: 700;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -32,7 +32,6 @@
 .notification:hover {
   background: rgba(69, 71, 90, 0.9);
   border: 1px solid @main-col;
-  transform: scale(1.02);
 }
 
 .widget-title {

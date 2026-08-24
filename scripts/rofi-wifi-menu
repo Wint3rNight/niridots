@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
+# Pick a Wi-Fi network in rofi and connect to it (or disconnect if it is the
+# current one).
 
-# Use rofi to select a wifi network
+# First Wi-Fi interface NetworkManager knows about (was hardcoded to wlan0).
+IFACE=$(nmcli -t -f DEVICE,TYPE device | awk -F: '$2 == "wifi" { print $1; exit }')
 
 # Get a list of available wifi networks
 wifi_list=$(nmcli --fields "SECURITY,SSID" device wifi list | sed 1d | sed 's/^  *//' | awk -F'  +' '{ if ($2 != "--") printf "%s  %s\n", $1, $2 }' | sort -u)
@@ -25,11 +28,12 @@ if [ -z "$ssid" ]; then
 fi
 
 if [ "$ssid" = "$connected" ]; then
-    nmcli device disconnect wlan0
+    nmcli device disconnect "$IFACE"
     notify-send "Disconnected from $ssid"
 else
-    # Check if network is known
-    if nmcli connection show | grep -q "$ssid"; then
+    # Known network? Exact, whole-line match on the saved connection names
+    # (a plain grep treated "Home" as a match for "Home-5G").
+    if nmcli -t -f NAME connection show | grep -Fxq -- "$ssid"; then
         nmcli connection up "$ssid" --ask
     else
         password=$(rofi -dmenu -p "Password for $ssid" -password -theme-str 'window {width: 300px; location: northeast; anchor: northeast; x-offset: -15px; y-offset: 40px;}')

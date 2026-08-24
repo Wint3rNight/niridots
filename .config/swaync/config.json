@@ -58,11 +58,11 @@
         },
         {
           "label": "󰂯  Bluetooth",
-          "command": "rofi-bluetooth"
+          "command": "sh -c 'command -v kcmshell6 >/dev/null && kcmshell6 kcm_bluetooth || kitty -e bluetoothctl'"
         },
         {
-          "label": "󰒲  Settings",
-          "command": "kitty"
+          "label": "󰒓  Configs",
+          "command": "bash -c '~/.config/niri/rofi-toggle.sh configs'"
         }
       ]
     },
