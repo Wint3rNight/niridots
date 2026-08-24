@@ -1,0 +1,43 @@
+# clangd user config, written once by nvim (lua/config/bootstrap.lua) when a CUDA toolkit is found.
+# Edit freely; nvim never overwrites an existing file.  https://clangd.llvm.org/config
+
+# CUDA sources: nvcc's flags are not clang flags. Rewrite the compile command so clang
+# can parse .cu/.cuh files.
+If:
+  PathMatch: [.*\.cu, .*\.cuh]
+CompileFlags:
+  Compiler: clang++
+  Add:
+    - -xcuda
+    - --cuda-path=@CUDA_PATH@
+@GPU_ARCH_LINE@    - --no-cuda-version-check        # clang usually trails the newest CUDA release
+    - -Wno-unknown-cuda-version
+  Remove:                             # nvcc-only flags clang rejects
+    - -forward-unknown-to-host-compiler
+    - -ccbin*
+    - --compiler-options*
+    - -Xcompiler*
+    - -Xcudafe*
+    - -Xfatbin*
+    - --generate-code*
+    - -gencode*
+    - -arch*
+    - --gpu-architecture*
+    - --expt-relaxed-constexpr
+    - --expt-extended-lambda
+    - --extended-lambda
+    - --diag_suppress*
+    - -rdc=*
+    - -G
+    - -Werror=cross-execution-space-call
+    - -allow-unsupported-compiler
+Diagnostics:
+  Suppress: [variadic_device_fn, attributes_not_allowed]
+
+# Per-repo compile database when the build dir is not literally named "build"
+# (clangd finds build/compile_commands.json on its own):
+# ---
+# If:
+#   PathMatch: /path/to/repo/.*
+# CompileFlags:
+#   CompilationDatabase: /path/to/repo/build-opt

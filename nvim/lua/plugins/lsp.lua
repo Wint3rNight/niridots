@@ -1,11 +1,23 @@
+-- Prefer the system toolchain; Mason installs whatever is missing so a fresh machine
+-- needs no manual setup (this is why a clone of this folder works out of the box).
+local function has(bin) return vim.fn.executable(bin) == 1 end
+local system_clangd = has("/usr/bin/clangd") and "/usr/bin/clangd" or (has("clangd") and "clangd" or nil)
+local rustup_ra = "/usr/lib/rustup/bin/rust-analyzer"
+local system_ra = has(rustup_ra) and rustup_ra or (has("rust-analyzer") and "rust-analyzer" or nil)
+
+local mason_tools = { "stylua", "codelldb", "tree-sitter-cli" } -- tree-sitter-cli compiles treesitter parsers
+if not system_clangd then table.insert(mason_tools, "clangd") end
+if not has("clang-format") then table.insert(mason_tools, "clang-format") end
+if not system_ra then table.insert(mason_tools, "rust-analyzer") end
+
 return {
   { "mason-org/mason.nvim", opts = { ui = { border = "rounded" } } },
 
-  -- Non-LSP tools Mason should keep installed (formatters, debug adapters)
+  -- Non-LSP tools Mason keeps installed (formatters, debug adapters, the tree-sitter CLI)
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     dependencies = { "mason-org/mason.nvim" },
-    opts = { ensure_installed = { "stylua", "codelldb" } },
+    opts = { ensure_installed = mason_tools },
   },
 
   -- clangd extras: :ClangdAST, :ClangdSymbolInfo, :ClangdTypeHierarchy, :ClangdMemoryUsage
@@ -29,11 +41,11 @@ return {
       local ok, blink = pcall(require, "blink.cmp")
       if ok then vim.lsp.config("*", { capabilities = blink.get_lsp_capabilities() }) end
 
-      -- C / C++ / CUDA. System clangd (22.1.8) instead of Mason's older one; CUDA flags come
-      -- from ~/.config/clangd/config.yaml so nothing has to be dropped into the OSS repos.
+      -- C / C++ / CUDA. System clangd when there is one (Mason's otherwise); CUDA flags come
+      -- from ~/.config/clangd/config.yaml (written on first run by config/bootstrap.lua).
       vim.lsp.config("clangd", {
         cmd = {
-          "/usr/bin/clangd",
+          system_clangd or "clangd",
           "--background-index",
           "--background-index-priority=background",
           "--clang-tidy",
@@ -47,8 +59,8 @@ return {
         },
       })
 
-      -- Rust: rustup's rust-analyzer tracks the installed toolchain
-      vim.lsp.config("rust_analyzer", { cmd = { "/usr/lib/rustup/bin/rust-analyzer" } })
+      -- Rust: rustup's rust-analyzer tracks the installed toolchain (Mason's as fallback)
+      vim.lsp.config("rust_analyzer", { cmd = { system_ra or "rust-analyzer" } })
 
       -- Lua (nvim config); lazydev supplies the runtime library paths
       vim.lsp.config("lua_ls", {

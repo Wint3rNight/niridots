@@ -7,7 +7,7 @@ return {
     keys = { [[<C-\>]], "<leader>tt", "<leader>tf", "<leader>gg" },
     config = function()
       require("toggleterm").setup({
-        shell = "fish",                       -- 'shell' is sh for plugins; humans get fish
+        shell = vim.fn.executable("fish") == 1 and "fish" or (vim.env.SHELL or "sh"), -- 'shell' is sh for plugins; humans get fish
         float_opts = { border = "rounded" },
       })
       -- Double-Esc leaves terminal insert mode (single Esc stays for TUI apps inside)
@@ -61,6 +61,7 @@ return {
   -- GitHub Copilot: inline ghost-text suggestions, Alt-l to accept
   {
     "zbirenbaum/copilot.lua",
+    cond = function() return vim.fn.executable("node") == 1 end, -- needs Node >= 22
     cmd = "Copilot",
     event = "InsertEnter",
     config = function()
@@ -86,6 +87,7 @@ return {
   -- Claude Code inside nvim: terminal on the right, sends selections, shows real diffs
   {
     "coder/claudecode.nvim",
+    cond = function() return vim.fn.executable("claude") == 1 end, -- needs the claude CLI
     dependencies = { "folke/snacks.nvim" },
     keys = {
       { "<leader>cc", "<cmd>ClaudeCode<cr>", desc = "Claude: toggle" },

@@ -9,6 +9,7 @@ vim.opt.rtp:prepend(lazypath)
 require("config.options")
 require("config.keymaps")
 require("config.autocmds")
+require("config.bootstrap")   -- first-run helpers (clangd CUDA config); no-ops afterwards
 
 require("lazy").setup({
   spec = { { import = "plugins" } },

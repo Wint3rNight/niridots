@@ -630,5 +630,5 @@ that week.
 - `plugins/workflow.lua` — toggleterm + lazygit, which-key (the Space menu), Copilot, Claude Code, markdown rendering, sessions.
 - `plugins/prime.lua` — Harpoon (the wall), Undotree.
 - `plugins/ui.lua` — catppuccin-mocha colours, lualine statusline, indent guides, noice (the centred command popup).
-- `~/.config/clangd/config.yaml` — CUDA flags for clangd (your GPU is sm_86, CUDA 13.3 at /opt/cuda).
+- `~/.config/clangd/config.yaml` — CUDA flags for clangd. nvim writes it on first run from `extras/clangd-config.yaml` (it detected your GPU as sm_86 and CUDA at /opt/cuda).
 - Copilot login is done. Claude uses your `claude` CLI login. Neovim 0.12.5 is out; update with pacman when it lands in the repo.

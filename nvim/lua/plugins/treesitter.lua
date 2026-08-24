@@ -5,17 +5,34 @@ return {
     "nvim-treesitter/nvim-treesitter",
     branch = "main",
     lazy = false,
-    build = ":TSUpdate",
+    build = function()
+      if vim.fn.executable("tree-sitter") == 1 then vim.cmd("TSUpdate") end
+    end,
     config = function()
       local ts = require("nvim-treesitter")
       ts.setup({})
+      local function cli_ready() return vim.fn.executable("tree-sitter") == 1 end
 
       local parsers = {
         "c", "cpp", "cuda", "glsl", "hlsl", "wgsl", "slang", "rust", "lua", "vim", "vimdoc", "query", "regex",
         "markdown", "markdown_inline", "cmake", "make", "python", "bash", "json", "yaml", "toml",
         "diff", "gitcommit", "git_rebase", "gitignore", "dockerfile",
       }
-      ts.install(parsers)
+      if cli_ready() then
+        ts.install(parsers)
+      else
+        -- Fresh machine: Mason is fetching tree-sitter-cli right now. Compile the parsers as soon as it lands.
+        vim.api.nvim_create_autocmd("User", {
+          pattern = "MasonToolsUpdateCompleted",
+          once = true,
+          callback = function()
+            if cli_ready() then
+              vim.notify("Compiling treesitter parsers in the background (first run only)", vim.log.levels.INFO)
+              ts.install(parsers)
+            end
+          end,
+        })
+      end
 
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("user_treesitter", { clear = true }),
@@ -29,7 +46,7 @@ return {
 
           if not vim.treesitter.language.add(lang) then
             -- Parser missing: fetch it in the background; highlighting kicks in next time
-            if vim.tbl_contains(ts.get_available(), lang) then ts.install({ lang }) end
+            if cli_ready() and vim.tbl_contains(ts.get_available(), lang) then ts.install({ lang }) end
             return
           end
 

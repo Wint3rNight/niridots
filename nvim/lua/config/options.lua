@@ -6,7 +6,7 @@ vim.g.loaded_ruby_provider = 0
 vim.g.loaded_node_provider = 0
 
 -- Wayland clipboard: naming the tool skips nvim's slow provider auto-detection.
-vim.g.clipboard = "wl-copy"
+if vim.env.WAYLAND_DISPLAY and vim.fn.executable("wl-copy") == 1 then vim.g.clipboard = "wl-copy" end
 -- Sync yank/paste with the system clipboard, wired up after the UI is ready.
 vim.schedule(function() vim.o.clipboard = "unnamedplus" end)
 
