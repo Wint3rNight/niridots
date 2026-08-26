@@ -33,7 +33,7 @@ layout {
     // Soft translucent halo just outside the border - this is the "glow".
     focus-ring {
         width 4
-        active-color "#a6e3a155"
+        active-color "#a6e3a144"
     }
 
     border {
@@ -48,7 +48,7 @@ layout {
         spread 5
         offset x=0 y=5
         // Active window casts a green glow; inactive keep the plain dark shadow.
-        color "#a6e3a199"
+        color "#a6e3a177"
         inactive-color "#0007"
     }
 }
