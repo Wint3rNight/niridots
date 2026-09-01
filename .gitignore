@@ -4,7 +4,10 @@
 .config/DankMaterialShell/.firstlaunch
 .config/DankMaterialShell/plugins/
 .config/DankMaterialShell/settings.json.bak
-.config/spicetify/Themes/
+.config/spicetify/Themes/*
+# ...except Cathedral: hand-written, 28K, cannot be re-downloaded.
+# SpicetifyCat is a 17MB upstream clone - bootstrap.sh fetches it by URL.
+!.config/spicetify/Themes/Cathedral/
 .config/spicetify/current-wallpaper.jpg
 # matugen regenerates these from the wallpaper on every change
 .config/kitty/dank-theme.conf

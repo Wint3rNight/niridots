@@ -1,83 +1,114 @@
+/* ============================================================
+   Cathedral — flat edge-to-edge bar
+   Revert via the pre-gothic backup folder under ~/.config
+   ============================================================ */
+
 * {
     font-family: "FantasqueSansM Nerd Font", sans-serif;
     font-size: 11px;
     border: none;
+    border-radius: 0;
+    min-height: 0;
+    box-shadow: none;
+    text-shadow: none;
 }
 
 window#waybar {
-    background: transparent;
+    background: rgba(20, 20, 27, 0.88);
+    border-bottom: 1px solid rgba(160, 44, 60, 0.22);
+    color: #d8d3c8;
+    transition: background 0.3s ease;
 }
 
-/* Pill containers */
-.modules-left, .modules-center, .modules-right {
-    background: rgba(30, 30, 46, 0.85);
-    border: 1px solid #a6e3a1;
-    padding: 2px 12px;
-    border-radius: 100px;
-    margin: 4px 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    transition: all 0.3s ease;
-}
+window#waybar.hidden { opacity: 0.0; }
 
-.modules-left:hover, .modules-center:hover, .modules-right:hover {
-    background: rgba(30, 30, 46, 0.95);
-    border-color: #cdd6f4;
-    box-shadow: 0 0 10px rgba(166, 227, 161, 0.4);
-}
-
-/* Breathing room between modules (replaces the old custom/spacer hack) */
-#clock, #pulseaudio, #network, #cpu, #memory, #battery, #tray,
-#custom-weather, #custom-notification {
-    padding: 0 6px;
-}
+/* ---------------- Workspaces ---------------- */
+#workspaces { padding-left: 6px; }
 
 #workspaces button {
-    padding: 0 10px;
-    color: #a6e3a1;
-    min-width: 24px;
+    padding: 0 9px;
+    min-height: 20px;
+    margin: 3px 2px;
+    color: #7d7a86;
+    background: transparent;
+    border-radius: 2px;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+
+#workspaces button:hover {
+    color: #d8d3c8;
+    background: rgba(160, 44, 60, 0.16);
 }
 
 #workspaces button.focused,
 #workspaces button.active {
-    color: #1e1e2e;
-    background: #a6e3a1;
-    border-radius: 100px;
-}
-
-#workspaces button.urgent {
-    color: #1e1e2e;
-    background: #f38ba8;
-    border-radius: 100px;
-}
-
-#clock {
-    color: #a6e3a1;
+    color: #0b0b0f;
+    background: #a02c3c;
     font-weight: bold;
 }
 
-#pulseaudio { color: #89b4fa; }
-#pulseaudio.muted { color: #6c7086; }
-#network { color: #94e2d5; }
-#network.disconnected { color: #f38ba8; }
-#cpu { color: #fab387; }
-#memory { color: #f5c2e7; }
-#battery { color: #a6e3a1; }
-#battery.charging, #battery.plugged { color: #94e2d5; }
-#battery.warning:not(.charging) { color: #f9e2af; }
-#battery.critical:not(.charging) { color: #f38ba8; font-weight: bold; }
-#custom-weather { color: #f9e2af; font-weight: bold; }
+#workspaces button.urgent {
+    color: #0b0b0f;
+    background: #c9a227;
+    font-weight: bold;
+}
 
-/* Bell: dim when DND, highlighted when something is waiting */
-#custom-notification { color: #f2cdcd; }
+/* ---------------- Clock: gilt, the ornament ---------------- */
+#clock {
+    min-height: 26px;
+    color: #c9a227;
+    font-weight: bold;
+    letter-spacing: 0.6px;
+    padding: 0 14px;
+}
+
+/* ---------------- Right-hand stats ---------------- */
+#custom-weather,
+#custom-notification,
+#pulseaudio,
+#network,
+#cpu,
+#memory,
+#battery,
+#tray {
+    padding: 0 10px;
+    min-height: 26px;
+    border-left: 1px solid rgba(125, 122, 134, 0.22);
+}
+
+#custom-weather { border-left: none; }
+
+/* Muted, aged tones. Blood and gilt stay reserved for the accent. */
+#custom-weather   { color: #c9a227; font-weight: bold; }
+#pulseaudio       { color: #7d9c96; }
+#pulseaudio.muted { color: #4a4550; }
+#network          { color: #6b7d9e; }
+#network.disconnected { color: #c84a58; }
+#cpu              { color: #9c7599; }
+#memory           { color: #8a9a68; }
+#battery          { color: #6b7a4f; }
+#battery.charging,
+#battery.plugged  { color: #c9a227; }
+#battery.warning:not(.charging)  { color: #e0bc4a; }
+#battery.critical:not(.charging) { color: #c84a58; font-weight: bold; }
+
+#custom-notification { color: #7d7a86; }
 #custom-notification.notification,
-#custom-notification.inhibited-notification { color: #f9e2af; }
+#custom-notification.inhibited-notification { color: #c9a227; }
 #custom-notification.dnd-none,
 #custom-notification.dnd-notification,
 #custom-notification.dnd-inhibited-none,
-#custom-notification.dnd-inhibited-notification { color: #6c7086; }
+#custom-notification.dnd-inhibited-notification { color: #4a4550; }
 
+#tray { padding-right: 12px; }
+#tray > .passive { -gtk-icon-effect: dim; }
+#tray > .needs-attention { -gtk-icon-effect: highlight; }
+
+/* ---------------- Tooltips ---------------- */
 tooltip {
-    background: rgba(30, 30, 46, 0.95);
-    border: 1px solid #a6e3a1;
-    border-radius: 12px;
+    background: rgba(20, 20, 27, 0.97);
+    border: 1px solid rgba(160, 44, 60, 0.40);
+    border-radius: 4px;
 }
+
+tooltip label { color: #d8d3c8; padding: 4px; }

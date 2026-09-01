@@ -1,7 +1,7 @@
 @define-color bg-col rgba(30, 30, 46, 0.7);
 @define-color bg-col-light rgba(49, 50, 68, 0.8);
-@define-color main-col #a6e3a1;
-@define-color text-col #cdd6f4;
+@define-color main-col #a02c3c;
+@define-color text-col #d8d3c8;
 
 * {
   font-family: "FantasqueSansM Nerd Font", "Noto Sans";
@@ -50,7 +50,7 @@
 
 .widget-volume scale trough, .widget-backlight scale trough {
   border-radius: 12px;
-  background: #313244;
+  background: #14141b;
   min-height: 12px;
 }
 
@@ -73,7 +73,7 @@
 
 .notification-default-action:hover, .notification-action:hover {
   background: @main-col;
-  color: #1e1e2e;
+  color: #0b0b0f;
 }
 
 .widget-buttons-grid {
@@ -84,7 +84,7 @@
 }
 
 .widget-buttons-grid > flowbox > flowboxchild > button {
-  background: #313244;
+  background: #14141b;
   border-radius: 8px;
   color: @text-col;
   font-size: 13px;
@@ -96,7 +96,7 @@
 
 .widget-buttons-grid > flowbox > flowboxchild > button:hover {
   background: @main-col;
-  color: #1e1e2e;
+  color: #0b0b0f;
   border: 1px solid @main-col;
 }
 

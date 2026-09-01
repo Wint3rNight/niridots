@@ -104,7 +104,29 @@ if ! command -v dsearch >/dev/null; then
 fi
 
 # ---------------------------------------------------------------------------
-# 7. fonts
+# 7. spicetify - Cathedral is vendored (28K, hand-written); SpicetifyCat is a
+#    17MB upstream clone, so it is fetched here rather than committed.
+#    config-xpui.ini already selects SpicetifyCat/Stray, so without this step
+#    spicetify would point at a theme that does not exist.
+# ---------------------------------------------------------------------------
+if command -v spicetify >/dev/null; then
+    say "Setting up spicetify"
+    THEMES="$HOME/.config/spicetify/Themes"
+    mkdir -p "$THEMES"
+    if [ ! -d "$THEMES/SpicetifyCat" ]; then
+        git clone --depth 1 https://github.com/Adrien5902/SpicetifyCat.git \
+            "$THEMES/SpicetifyCat" >/dev/null 2>&1 \
+            && echo "    cloned SpicetifyCat" \
+            || echo "    FAILED to clone SpicetifyCat" >&2
+    fi
+    # spicetify needs Spotify unpacked once before it can patch it.
+    spicetify backup apply >/dev/null 2>&1 \
+        && echo "    theme applied" \
+        || echo "    run 'spicetify backup apply' by hand after starting Spotify once" >&2
+fi
+
+# ---------------------------------------------------------------------------
+# 8. fonts
 # ---------------------------------------------------------------------------
 if [ -d "$REPO/fonts" ]; then
     say "Installing fonts"

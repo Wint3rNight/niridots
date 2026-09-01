@@ -1,12 +1,12 @@
 {
     "layer": "top",
     "position": "top",
-    "height": 28,
-    "margin-top": 5,
-    "margin-left": 15,
-    "margin-right": 15,
+    "height": 26,
+    "margin-top": 0,
+    "margin-left": 0,
+    "margin-right": 0,
     "margin-bottom": 0,
-    "spacing": 10,
+    "spacing": 0,
     "exclusive": true,
     "passthrough": false,
     "all-outputs": true,
@@ -83,13 +83,13 @@
     "cpu": {
         "format": "󰻠 {usage}%",
         "interval": 2,
-        "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop"
+        "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop --force-utf"
     },
 
     "memory": {
         "format": "󰍛 {used}G",
         "interval": 2,
-        "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop"
+        "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop --force-utf"
     },
 
     "battery": {
@@ -100,7 +100,7 @@
         "format-plugged": "󰚥 {capacity}%",
         "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
         "tooltip-format": "{timeTo}",
-        "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop"
+        "on-click": "/usr/bin/kitty --class system-stats -e /usr/bin/btop --force-utf"
     },
 
     "tray": {
