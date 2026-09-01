@@ -162,6 +162,7 @@ lvm2
 man-db
 man-pages
 mariadb
+matugen
 mdadm
 meld
 mesa

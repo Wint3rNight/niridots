@@ -16,7 +16,7 @@ font_family      family="FantasqueSansM Nerd Font"
 bold_font        auto
 italic_font      auto
 bold_italic_font auto
-font_size 11.5
+font_size 11.0
 
 symbol_map U+2800-U+28FF FantasqueSansM Nerd Font
 
@@ -87,6 +87,3 @@ color14 #7d9c96
 # white — bone
 color7  #d8d3c8
 color15 #efe9dd
-
-# matugen: wallpaper-derived palette (DMS regenerates this file)
-include dank-theme.conf

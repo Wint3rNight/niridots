@@ -6,3 +6,10 @@
 .config/DankMaterialShell/settings.json.bak
 .config/spicetify/Themes/
 .config/spicetify/current-wallpaper.jpg
+# matugen regenerates these from the wallpaper on every change
+.config/kitty/dank-theme.conf
+.config/kitty/dank-tabs.conf
+.config/gtk-3.0/dank-colors.css
+.config/gtk-4.0/dank-colors.css
+.config/qt5ct/colors/matugen.conf
+.config/qt6ct/colors/matugen.conf
