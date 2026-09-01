@@ -1,0 +1,6 @@
+emojiLauncher
+quickCapture
+webSearch
+calculator
+dankKDEConnect
+dmsAgent

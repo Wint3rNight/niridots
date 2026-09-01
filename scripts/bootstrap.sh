@@ -67,7 +67,19 @@ if ! printf '%s' "${LANG:-}" | grep -qiE 'utf-?8'; then
 fi
 
 # ---------------------------------------------------------------------------
-# 5. fonts
+# 5. DMS plugins - 21MB of git clones, so they are installed rather than vendored
+# ---------------------------------------------------------------------------
+if command -v dms >/dev/null && [ -f "$REPO/dms-plugins.txt" ]; then
+    say "Installing DMS plugins"
+    while read -r id; do
+        [ -z "$id" ] && continue
+        dms plugins install "$id" >/dev/null 2>&1 \
+            && echo "    installed $id" || echo "    FAILED $id" >&2
+    done < "$REPO/dms-plugins.txt"
+fi
+
+# ---------------------------------------------------------------------------
+# 6. fonts
 # ---------------------------------------------------------------------------
 if [ -d "$REPO/fonts" ]; then
     say "Installing fonts"

@@ -2,3 +2,5 @@
 .config/niri/dms/
 .config/DankMaterialShell/.changelog-*
 .config/DankMaterialShell/.firstlaunch
+.config/DankMaterialShell/plugins/
+.config/DankMaterialShell/settings.json.bak

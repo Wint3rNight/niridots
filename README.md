@@ -57,6 +57,8 @@ Doing it by hand instead:
 - `.config/gtk-3.0`, `.config/gtk-4.0`, `.config/qt5ct`, `.config/qt6ct` — app theming.
 - `scripts/` — helpers that live in `~/.local/bin`, plus `bootstrap.sh`.
 - `pkglist.txt` — every explicitly installed package on the box.
+- `dms-plugins.txt` — DMS plugin IDs. The plugins themselves are git clones
+  (~21 MB) so they are gitignored; `bootstrap.sh` reinstalls them by ID.
 
 ## Notes
 
