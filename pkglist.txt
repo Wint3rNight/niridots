@@ -2,6 +2,7 @@ accountsservice
 adobe-source-han-sans-cn-fonts
 adobe-source-han-sans-jp-fonts
 adobe-source-han-sans-kr-fonts
+adw-gtk-theme
 aider-install
 alsa-firmware
 alsa-plugins
@@ -58,12 +59,12 @@ cmatrix
 cpupower
 cryptsetup
 cuda
-cursor-bin
 device-mapper
 dhclient
 diffutils
 dmidecode
 dmraid
+dms-shell
 dnsmasq
 docker
 dolphin
@@ -235,7 +236,10 @@ python-pip
 python-pipx
 python-setuptools
 qbittorrent
+qt5ct
 qt6-wayland
+qt6ct
+quickshell
 rebuild-detector
 reflector
 renderdoc
@@ -258,9 +262,11 @@ sof-firmware
 spectacle
 spirv-headers
 spotify-launcher
+starship
 sudo
 swappy
 swaybg
+swayidle
 swaync
 switcheroo-control
 sysfsutils
@@ -307,6 +313,7 @@ wireplumber
 wl-clipboard
 wmctrl
 wpa_supplicant
+wtype
 xdg-desktop-portal
 xdg-desktop-portal-kde
 xdg-desktop-portal-wlr

@@ -17,6 +17,7 @@ return {
         "c", "cpp", "cuda", "glsl", "hlsl", "wgsl", "slang", "rust", "lua", "vim", "vimdoc", "query", "regex",
         "markdown", "markdown_inline", "cmake", "make", "python", "bash", "json", "yaml", "toml",
         "diff", "gitcommit", "git_rebase", "gitignore", "dockerfile",
+        "html", "htmldjango", "css", "javascript", "sql", -- Django/FastAPI templates and Postgres
       }
       if cli_ready() then
         ts.install(parsers)

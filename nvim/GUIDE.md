@@ -417,7 +417,7 @@ On/off things live in one place. `Space o b` transparent background (remembered)
 `Space o h` inlay hints. `Space o d` diagnostics. `Space o f` save-formatting.
 `Space o m` markdown rendering. `Space o s` spell check. `Space o w` line wrap.
 `Space o z` zen mode (one centred window, nothing else). `Space o D` dims every
-block except the one you are in.
+block except the one you are in. `Space o q` opens the database sidebar (3.18).
 
 ### 3.17 Windows and buffers
 
@@ -427,6 +427,43 @@ closes a split, `Space s e` makes them equal. `Ctrl-Arrows` resize.
 paper off the desk without closing the window. `Space b b` flips to the last one.
 
 ---
+
+### 3.18 Python, Django, FastAPI and Postgres
+
+The situation: the college project is Python with a database, not C++. Everything
+above still applies, with these differences.
+
+**Open a `.py` file** and two language servers attach on their own: basedpyright
+(types, go-to-definition, rename, the red squiggles) and ruff (import sorting, unused
+imports, style fixes offered as `Space c a` code actions). Both look for the project's
+virtual environment by themselves: a `.venv` or `venv` folder in the project, or an
+activated one. So `python -m venv .venv` and `pip install` inside it, and the editor
+sees the same packages your code does. Django and FastAPI need nothing extra.
+
+**Saving formats the file** with ruff, which does what black and isort do in one
+step. That is on by default for Python (the careful C++ policy in 3.11 does not apply
+here). `Space o f` switches it off for a buffer if you are editing someone else's code.
+
+**Tests** use the same keys as C++ (3.8): `Space t r` runs the test under the cursor
+with pytest, `Space t d` runs it inside the debugger. Install pytest in the project's
+venv (and pytest-django for a Django project) and the keys just work.
+
+**Debugging** uses the same keys as C++ (3.9). `F5` on a `.py` file offers a list:
+run this file, attach to a running process, `Django: runserver`, `FastAPI: uvicorn`
+(it asks for the app module, for example `app.main:app`), and `pytest: current file`.
+The Django one starts the server with `--noreload`, because Django's auto-reloader
+starts a second process and the debugger would attach to the wrong one.
+
+**Postgres** lives in `Space o q`. The first time, press `A` in the sidebar to add a
+connection, and paste a URL like `postgresql://user:password@localhost:5432/dbname`.
+It is saved, so next time you just expand it: tables, and under each table the
+ready-made queries (list, describe). Write your own SQL in any buffer the sidebar
+opens and press `Space S` to run it; results open below. Table and column names
+complete as you type. This needs the `psql` client on the machine
+(`sudo pacman -S postgresql-libs`), which is the only thing not installed for you.
+
+Django templates (`.html` files with `{% %}` in them) get their own highlighting and
+a formatter (djlint); plain SQL files get sql-formatter. Both run on save like the rest.
 
 ## Part 4 — Workflow tips and tricks
 
@@ -576,6 +613,9 @@ paper off the desk without closing the window. `Space b b` flips to the last one
 | `:ClangdAST`, `:ClangdSymbolInfo`, `:ClangdTypeHierarchy`, `:ClangdMemoryUsage` | clangd extras |
 | `:DiffviewOpen` | Merge-conflict view |
 | `:Lazy sync` / `:Lazy restore` | Update plugins / roll back |
+| `Space o q`, then `A` | Database sidebar (Postgres), add a connection |
+| `Space S` (in a SQL buffer) | Run the query |
+| `F5` on a `.py` | Debug: pick run file / Django runserver / FastAPI uvicorn / pytest file |
 
 ---
 
@@ -619,14 +659,15 @@ that week.
 - `init.lua` loads `lua/config/{options,keymaps,autocmds}` then `lua/plugins/*` through **lazy.nvim** (the plugin manager).
 - `plugins/snacks.lua` — the picker (assistant), notifications, big-file guard, `Space o` toggles, buffer delete, open-on-GitHub.
 - `plugins/completion.lua` — blink.cmp completion, friendly-snippets, lazydev (Lua docs for the config itself).
-- `plugins/lsp.lua` — Mason (installs tools) + clangd (system 22.1.8), rust-analyzer (rustup), lua_ls, glsl_analyzer, clangd extras.
+- `plugins/lsp.lua` — Mason (installs tools) + clangd (system 22.1.8), rust-analyzer (rustup), lua_ls, glsl_analyzer, basedpyright + ruff (Python), clangd extras.
 - `plugins/treesitter.lua` — syntax highlighting, indentation, folds; `]f`-style motions; language-aware comments.
 - `plugins/editing.lua` — flash, mini.ai / mini.surround / mini.pairs, TODO comments, Trouble panels, editable quickfix, grug-far.
 - `plugins/explorer.lua` — the tree (nvim-tree) and oil.
-- `plugins/build.lua` — overseer (`:Make`, task list), cmake-tools, neotest + ctest adapter.
-- `plugins/debugging.lua` — nvim-dap with gdb and codelldb, the debug UI, inline values.
-- `plugins/formatting.lua` — conform; the policy lives in `lua/util/format.lua`.
+- `plugins/build.lua` — overseer (`:Make`, task list), cmake-tools, neotest with the ctest and python (pytest) adapters.
+- `plugins/debugging.lua` — nvim-dap with gdb and codelldb (C/C++/CUDA/Rust) and debugpy (Python, with Django / FastAPI / pytest launch entries), the debug UI, inline values.
+- `plugins/formatting.lua` — conform (clang-format, rustfmt, stylua, ruff, sql-formatter, djlint); the policy lives in `lua/util/format.lua`.
 - `plugins/git.lua` — gitsigns (gutter, hunks), diffview.
+- `plugins/database.lua` — vim-dadbod + dadbod-ui (`Space o q`) + completion of table names; Postgres needs the `psql` client.
 - `plugins/workflow.lua` — toggleterm + lazygit, which-key (the Space menu), Copilot, Claude Code, markdown rendering, sessions.
 - `plugins/prime.lua` — Harpoon (the wall), Undotree.
 - `plugins/ui.lua` — catppuccin-mocha colours, lualine statusline, indent guides, noice (the centred command popup).

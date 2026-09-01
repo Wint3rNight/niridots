@@ -27,8 +27,11 @@ return {
       signature = { enabled = true, window = { border = "rounded" } },
       sources = {
         default = { "lsp", "path", "snippets", "buffer", "lazydev" },
+        -- SQL buffers: table/column names from the live connection (vim-dadbod-completion)
+        per_filetype = { sql = { "dadbod", "buffer", "snippets" }, mysql = { "dadbod", "buffer" }, plsql = { "dadbod", "buffer" } },
         providers = {
           lazydev = { name = "LazyDev", module = "lazydev.integrations.blink", score_offset = 100 },
+          dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink" },
         },
       },
       cmdline = {

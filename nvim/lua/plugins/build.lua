@@ -63,7 +63,11 @@ return {
   -- Tests: run the test under the cursor / the file / everything, results inline
   {
     "nvim-neotest/neotest",
-    dependencies = { "nvim-neotest/nvim-nio", "nvim-lua/plenary.nvim", "nvim-treesitter/nvim-treesitter", "orjangj/neotest-ctest" },
+    dependencies = {
+      "nvim-neotest/nvim-nio", "nvim-lua/plenary.nvim", "nvim-treesitter/nvim-treesitter",
+      "orjangj/neotest-ctest",
+      "nvim-neotest/neotest-python",   -- pytest / unittest (Django too, via pytest-django in the project venv)
+    },
     keys = {
       { "<leader>tr", function() require("neotest").run.run() end, desc = "Test: run nearest" },
       { "<leader>tR", function() require("neotest").run.run(vim.fn.expand("%")) end, desc = "Test: run file" },
@@ -78,6 +82,7 @@ return {
       return {
         adapters = {
           require("neotest-ctest").setup({ frameworks = { "gtest", "catch2", "doctest" }, dap_adapter = "gdb" }),
+          require("neotest-python")({ dap = { justMyCode = false } }),   -- runner auto-detected: pytest if installed
         },
       }
     end,

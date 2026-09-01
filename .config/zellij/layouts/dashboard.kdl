@@ -9,14 +9,18 @@ layout {
     tab name="System" focus=true {
         pane split_direction="vertical" {
             pane command="btop" size="60%" {
-                args "-u" "200" "--force-utf"
+                args "-u" "200" "--force-utf" "-c" "/home/winter/.config/btop/dashboard.conf"
             }
             pane split_direction="horizontal" {
                 pane command="tty-clock" size="20%" {
                     args "-c" "-C" "6"
                 }
-                pane command="cava" size="40%"
-                pane command="cmatrix" size="40%"
+                pane command="cava" size="40%" {
+                    args "-p" "/home/winter/.config/cava/dashboard"
+                }
+                pane command="cmatrix" size="40%" {
+                    args "-C" "red" "-b"
+                }
             }
         }
     }

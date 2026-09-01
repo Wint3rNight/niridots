@@ -9,12 +9,12 @@ configuration {
 }
 
 * {
-    bg: #1e1e2eCC;
-    bg-alt: #313244cc;
-    fg: #cdd6f4;
-    accent: #a6e3a1;
-    grey: #6c7086;
-    font: "FantasqueSansM Nerd Font 10";
+    bg: #0b0b0fdd;
+    bg-alt: #14141bcc;
+    fg: #d8d3c8;
+    accent: #a02c3c;
+    grey: #7d7a86;
+    font: "FantasqueSansM Nerd Font 9";
     
     background-color: transparent;
     text-color: @fg;
@@ -77,7 +77,7 @@ element {
 
 element selected {
     background-color: @accent;
-    text-color: #1e1e2e;
+    text-color: #0b0b0f;
 }
 
 element-icon {
@@ -105,5 +105,5 @@ button {
 
 button selected {
     background-color: @accent;
-    text-color: #1e1e2e;
+    text-color: #0b0b0f;
 }

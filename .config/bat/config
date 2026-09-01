@@ -1,0 +1,5 @@
+# "ansi" renders using the terminal's own 16 colours, so bat inherits the
+# gothic palette from kitty.conf automatically -- and will follow any future
+# theme change without being re-edited.
+--theme="ansi"
+--style="numbers,changes,header"

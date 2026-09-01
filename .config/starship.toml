@@ -1,32 +1,32 @@
 format = """
-[░▒▓](#89b4fa)\
-[ 󰣇 ](bg:#89b4fa fg:#1e1e2e)\
-[](fg:#89b4fa bg:#313244)\
+[░▒▓](#a02c3c)\
+[ 󰣇 ](bg:#a02c3c fg:#0b0b0f)\
+[](fg:#a02c3c bg:#14141b)\
 $directory\
-[](fg:#313244 bg:#45475a)\
+[](fg:#14141b bg:#23232e)\
 $git_branch\
 $git_status\
-[](fg:#45475a bg:#585b70)\
+[](fg:#23232e bg:#2a2a35)\
 $nodejs\
 $rust\
 $python\
-[](fg:#585b70 bg:#1e1e2e)\
+[](fg:#2a2a35 bg:#0b0b0f)\
 \n$character"""
 
 [directory]
-style = "bg:#313244 fg:#cdd6f4"
+style = "bg:#14141b fg:#d8d3c8"
 format = "[ $path ]($style)"
 truncation_length = 3
 
 [git_branch]
 symbol = ""
-style = "bg:#45475a fg:#cdd6f4"
+style = "bg:#23232e fg:#d8d3c8"
 format = "[[ $symbol $branch ]($style)]"
 
 [git_status]
-style = "bg:#45475a fg:#cdd6f4"
+style = "bg:#23232e fg:#d8d3c8"
 format = "[[($all_status$ahead_behind )]($style)]"
 
 [character]
-success_symbol = "[󰄛 ](bold #a6e3a1)"
-error_symbol = "[󰄛 ](bold #f38ba8)"
+success_symbol = "[󰄛 ](bold #c9a227)"
+error_symbol = "[󰄛 ](bold #c84a58)"

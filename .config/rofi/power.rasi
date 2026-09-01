@@ -1,8 +1,8 @@
 * {
-    bg:                         #1e1e2eCC;
-    bg-alt:                     #313244cc;
-    fg:                         #cdd6f4;
-    accent:                     #a6e3a1;
+    bg:                         #0b0b0fdd;
+    bg-alt:                     #14141bcc;
+    fg:                         #d8d3c8;
+    accent:                     #a02c3c;
     background-color:           transparent;
     text-color:                 @fg;
 }
@@ -43,7 +43,7 @@ element {
 }
 
 element-text {
-    font:                       "FantasqueSansM Nerd Font 32";
+    font:                       "FantasqueSansM Nerd Font 30";
     background-color:           transparent;
     text-color:                 inherit;
     vertical-align:             0.5;
@@ -52,7 +52,7 @@ element-text {
 
 element selected.normal {
     background-color:           @accent;
-    text-color:                 #1e1e2e;
+    text-color:                 #0b0b0f;
 }
 
 infobox {
@@ -76,13 +76,13 @@ textbox-user, textbox-uptime {
 }
 
 textbox-user {
-    background-color:           #a6e3a133;
+    background-color:           #a02c3c33;
     text-color:                 @accent;
-    font:                       "FantasqueSansM Nerd Font Bold 12";
+    font:                       "FantasqueSansM Nerd Font Bold 11";
 }
 
 textbox-uptime {
-    background-color:           #89b4fa33;
-    text-color:                 #89b4fa;
-    font:                       "FantasqueSansM Nerd Font 12";
+    background-color:           #c9a22733;
+    text-color:                 #c9a227;
+    font:                       "FantasqueSansM Nerd Font 11";
 }

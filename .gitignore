@@ -1,0 +1,4 @@
+# DMS auto-generates these from settings; they are not `include`d by config.kdl
+.config/niri/dms/
+.config/DankMaterialShell/.changelog-*
+.config/DankMaterialShell/.firstlaunch

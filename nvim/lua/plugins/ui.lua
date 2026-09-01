@@ -11,6 +11,22 @@ return {
       local function apply()
         require("catppuccin").setup({
           transparent_background = transparent(),
+          -- Cathedral: remap Catppuccin's palette slots rather than swapping
+          -- the plugin, so every integration below keeps working.
+          -- Desaturated throughout; blood and gilt are the only vivid slots.
+          color_overrides = {
+            mocha = {
+              base      = "#0b0b0f", mantle    = "#08080b", crust    = "#000000",
+              surface0  = "#14141b", surface1  = "#23232e", surface2 = "#2a2a35",
+              overlay0  = "#4a4550", overlay1  = "#5a5560", overlay2 = "#6a6570",
+              subtext0  = "#7d7a86", subtext1  = "#9a97a3", text     = "#d8d3c8",
+              red       = "#a02c3c", maroon    = "#c84a58", peach    = "#c47a33",
+              yellow    = "#c9a227", green     = "#6b7a4f", teal     = "#5f7d78",
+              sky       = "#7d9c96", sapphire  = "#6b7d9e", blue     = "#4a5a7a",
+              lavender  = "#7d5a7a", mauve     = "#9c7599", pink     = "#b08a9e",
+              flamingo  = "#c9a89e", rosewater = "#d8c8c0",
+            },
+          },
           integrations = {
             blink_cmp = true, dap = true, dap_ui = true, diffview = true, flash = true, gitsigns = true,
             grug_far = true, harpoon = true, indent_blankline = { enabled = true }, lsp_trouble = true,

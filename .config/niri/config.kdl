@@ -32,33 +32,45 @@ layout {
 
     // Soft translucent halo just outside the border - this is the "glow".
     focus-ring {
-        width 4
-        active-color "#a6e3a144"
+        width 3
+        active-color "#a02c3c33"
     }
 
     border {
         width 2
-        active-gradient from="#a6e3a1" to="#94e2d5" angle=45
-        inactive-color "#313244"
+        active-gradient from="#a02c3c" to="#c9a227" angle=45
+        inactive-color "#23232e"
     }
 
     shadow {
         on
-        softness 30
-        spread 5
-        offset x=0 y=5
-        // Active window casts a green glow; inactive keep the plain dark shadow.
-        color "#a6e3a177"
-        inactive-color "#0007"
+        softness 12
+        spread 0
+        offset x=0 y=6
+        // No coloured halo. Gotham shadows are hard and near-black -- the glow
+        // is what made this read as "rice" rather than "noir".
+        color "#000000b0"
+        inactive-color "#00000075"
     }
 }
 
-// spawn-at-startup "waybar"
-spawn-at-startup "swaync"
+spawn-at-startup "dms" "run"
+// spawn-at-startup "swaync"   // retired: DMS owns notifications
+// Idle: lock after 5 min, monitors off after 10, and always lock before suspend.
+spawn-at-startup "sh" "-c" "pkill -x swayidle; swayidle -w timeout 300 '$HOME/Projects/qylock/quickshell-lockscreen/lock.sh' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep '$HOME/Projects/qylock/quickshell-lockscreen/lock.sh'"
 // spawn-at-startup "awww-daemon"
 spawn-at-startup "waypaper" "--restore"
-spawn-at-startup "sh" "-c" "wl-paste --watch cliphist store"
+// RETIRED (DMS has its own clipboard store)
+// spawn-at-startup "sh" "-c" "wl-paste --watch cliphist store"
 spawn-at-startup "sh" "-c" "/home/winter/.config/niri/launch-dashboard.sh"
+
+// Qt apps ignore GTK settings entirely; this points them at qt6ct/qt5ct
+// so they pick up the Cathedral palette instead of default Fusion grey.
+environment {
+    QT_QPA_PLATFORMTHEME "qt6ct"
+    LANG "en_IN.UTF-8"
+    DMS_DISABLE_MATUGEN "1"
+}
 
 prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
@@ -68,23 +80,81 @@ switch-events {
     lid-close { spawn "systemctl" "suspend"; }
 }
 
+// ---------------------------------------------------------------------------
+// Animations - "Aurora" feel.
+//
+// Aurora is a Hyprland rice, so none of its config ports directly. What makes
+// it read as Aurora is the motion: springs with real overshoot rather than a
+// flat ease. In niri that means a LOWER damping-ratio (more bounce; 1.0 is
+// critically damped with no overshoot) and a HIGHER stiffness (snappier).
+//
+// Previously only three of these were configured at damping 0.8 / stiffness
+// 400-500 - stiff and slow. All ten are now tuned.
+//
+// Dial the whole thing up or down with `slowdown` rather than editing each
+// block: 1.3 = more languid, 0.8 = faster.
+// ---------------------------------------------------------------------------
 animations {
+    slowdown 1.0
+
+    // Pops in with visible overshoot - the signature Aurora bounce.
     window-open {
-        spring damping-ratio=0.8 stiffness=500 epsilon=0.0001
+        spring damping-ratio=0.95 stiffness=480 epsilon=0.0001
     }
+
+    // Closing should NOT bounce; it reads as a glitch. Fast and near-critical.
     window-close {
-        spring damping-ratio=0.8 stiffness=500 epsilon=0.0001
+        spring damping-ratio=1.00 stiffness=520 epsilon=0.0001
     }
+
+    // The scrollable-column slide. This is the motion you see most in niri,
+    // so it is bouncy but deliberately restrained - overshoot here gets
+    // nauseating fast.
     horizontal-view-movement {
-        spring damping-ratio=0.8 stiffness=400 epsilon=0.0001
+        spring damping-ratio=0.90 stiffness=400 epsilon=0.0001
+    }
+
+    // Shuffling a window/column to a new position.
+    window-movement {
+        spring damping-ratio=0.92 stiffness=450 epsilon=0.0001
+    }
+
+    // Resizes settle quickly - wobbling geometry looks broken, not playful.
+    window-resize {
+        spring damping-ratio=0.96 stiffness=500 epsilon=0.0001
+    }
+
+    workspace-switch {
+        spring damping-ratio=0.94 stiffness=440 epsilon=0.0001
+    }
+
+    overview-open-close {
+        spring damping-ratio=0.92 stiffness=430 epsilon=0.0001
+    }
+
+    // Small transient toasts can be as bouncy as you like.
+    config-notification-open-close {
+        spring damping-ratio=0.90 stiffness=500 epsilon=0.0001
+    }
+
+    exit-confirmation-open-close {
+        spring damping-ratio=0.94 stiffness=480 epsilon=0.0001
+    }
+
+    // Wants to feel instant, not animated.
+    screenshot-ui-open {
+        spring damping-ratio=0.98 stiffness=700 epsilon=0.0001
     }
 }
 
+// Noir is a weather condition. Grain keeps large black areas reading as film
+// rather than flat digital, and saturation below 1.0 drains the wallpaper
+// showing through instead of boosting it (1.2 was working against the look).
 blur {
-    passes 2
-    offset 2.0
-    noise 0.01
-    saturation 1.2
+    passes 3
+    offset 2.5
+    noise 0.05
+    saturation 1.0
 }
 
 // ---------------------------------------------------------------------------
@@ -118,7 +188,7 @@ window-rule {
 
 window-rule {
     match is-floating=true is-active=false
-    opacity 0.7
+    opacity 0.70
     background-effect {
         blur false
         xray false
@@ -138,20 +208,22 @@ window-rule {
     opacity 0.80
 }
 
-// Popups launched from waybar
-window-rule {
-    match app-id="system-stats"
-    open-floating true
-    default-column-width { proportion 0.5; }
-    default-window-height { proportion 0.7; }
-}
+// RETIRED (DMS replaced this) - system-stats (was waybar cpu/mem/battery click target)
+// // Popups launched from waybar
+// window-rule {
+//     match app-id="system-stats"
+//     open-floating true
+//     default-column-width { proportion 0.5; }
+//     default-window-height { proportion 0.7; }
+// }
 
-window-rule {
-    match app-id="network-manager"
-    // open-floating true
-    default-column-width { proportion 0.5; }
-    default-window-height { proportion 0.7; }
-}
+// RETIRED (DMS replaced this) - network-manager
+// window-rule {
+//     match app-id="network-manager"
+//     // open-floating true
+//     default-column-width { proportion 0.5; }
+//     default-window-height { proportion 0.7; }
+// }
 
 window-rule {
     match app-id="calendar-popup"
@@ -182,32 +254,36 @@ window-rule {
 // Layer rules (bars, notifications, launchers, wallpaper)
 // ---------------------------------------------------------------------------
 
-layer-rule {
-    match namespace="waybar"
-    shadow { off; }
-    opacity 0.99
-    geometry-corner-radius 12
-}
+// RETIRED (DMS replaced this) - waybar layer
+// layer-rule {
+//     match namespace="waybar"
+//     shadow { off; }
+//     opacity 0.99
+//     // Flat edge-to-edge strip: square corners, no rounding.
+//     geometry-corner-radius 0
+// }
 
 layer-rule {
     match namespace="^mpvpaper$"
     place-within-backdrop true
 }
 
-layer-rule {
-    match namespace="swaync-control-center"
-    background-effect {
-        blur true
-    }
-    shadow { off; }
-    geometry-corner-radius 12
-    opacity 0.99
-}
+// RETIRED (DMS replaced this) - swaync control center
+// layer-rule {
+//     match namespace="swaync-control-center"
+//     background-effect {
+//         blur true
+//     }
+//     shadow { off; }
+//     geometry-corner-radius 12
+//     opacity 0.99
+// }
 
-layer-rule {
-    match namespace="swaync-notification-window"
-    shadow { off; }
-}
+// RETIRED (DMS replaced this) - swaync notification
+// layer-rule {
+//     match namespace="swaync-notification-window"
+//     shadow { off; }
+// }
 
 layer-rule {
     match namespace="rofi"
@@ -221,14 +297,15 @@ layer-rule {
 }
 
 binds {
-    Mod+C { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh clipboard"; }
+    Mod+C { spawn "dms" "ipc" "call" "clipboard" "toggle"; }
     Mod+Shift+Slash { show-hotkey-overlay; }
-    Mod+T { spawn "kitty"; }
+    // Plain shell, no zellij. Use `zj` inside it if you want a session.
+    Mod+T { spawn "sh" "-c" "NO_ZELLIJ=1 kitty"; }
     Mod+E { spawn "kitty" "yazi"; }
     Mod+V { spawn "sh" "-c" "/home/winter/.config/niri/launch-dashboard.sh"; }
-    Mod+B { spawn "sh" "-c" "pkill waybar || waybar"; }
+    Mod+B { spawn "dms" "ipc" "call" "bar" "toggle" "index" "0"; }
     Mod+W { spawn "waypaper" "--random"; }
-    Mod+D { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh drun"; }
+    Mod+D { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Mod+S { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh find"; }
     Mod+G { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh google"; }
     Mod+A { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh calc"; }
@@ -236,11 +313,19 @@ binds {
     Mod+Period { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh emoji"; }
     Mod+Tab { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh windows"; }
     Mod+P { spawn "sh" "-c" "hyprpicker -a -f hex"; }
+
+    // DankMaterialShell panels
+    Mod+Shift+D { spawn "dms" "ipc" "call" "dash" "toggle" "overview"; }
+    Mod+Shift+P { spawn "dms" "ipc" "call" "processlist" "toggle"; }
+    Mod+Slash { spawn "dms" "ipc" "call" "keybinds" "toggle" "niri"; }
+    Mod+Y { spawn "dms" "ipc" "call" "notepad" "toggle"; }
     Mod+Shift+C { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh configs"; }
-    Mod+X { spawn "bash" "-c" "~/.config/niri/rofi-power.sh"; }
-    Mod+N { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh network"; }
-    Mod+Shift+N { spawn "swaync-client" "-t" "-sw"; }
-    Mod+Shift+V { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh volume"; }
+    Mod+X { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
+    // Lock now (qylock / quickshell). Theme: ~/.config/qylock/theme
+    Mod+Shift+X { spawn "bash" "-c" "$HOME/Projects/qylock/quickshell-lockscreen/lock.sh"; }
+    Mod+N { spawn "dms" "ipc" "call" "control-center" "toggle"; }
+    Mod+Shift+N { spawn "dms" "ipc" "call" "notifications" "toggle"; }
+    Mod+Shift+V { spawn "dms" "ipc" "call" "control-center" "toggle"; }
 
     Mod+R { switch-preset-column-width; }
     Mod+Shift+R { reset-window-height; }
@@ -258,6 +343,15 @@ binds {
     Mod+Print { spawn "bash" "-c" "~/.config/niri/screenshot-area.sh"; }
     Mod+Q { close-window; }
     Mod+Shift+Space { toggle-window-floating; }
+
+    // --- Free placement of a floating window -------------------------------
+    // Float the window first with Mod+Shift+Space, then nudge it anywhere with
+    // Mod+Alt+<arrow>. These go through `niri msg action` because
+    // move-floating-window is IPC-only and is not a bindable action.
+    Mod+Alt+Left  { spawn "niri" "msg" "action" "move-floating-window" "-x" "-50"; }
+    Mod+Alt+Right { spawn "niri" "msg" "action" "move-floating-window" "-x" "+50"; }
+    Mod+Alt+Up    { spawn "niri" "msg" "action" "move-floating-window" "-y" "-50"; }
+    Mod+Alt+Down  { spawn "niri" "msg" "action" "move-floating-window" "-y" "+50"; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+Alt+F { maximize-window-to-edges; }

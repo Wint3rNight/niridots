@@ -105,7 +105,7 @@ return {
     "MeanderingProgrammer/render-markdown.nvim",
     ft = { "markdown" },
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
-    opts = {},
+    opts = { latex = { enabled = false } },   -- no LaTeX toolchain here; html rendering uses the html parser
     keys = { { "<leader>om", "<cmd>RenderMarkdown toggle<cr>", desc = "Markdown rendering" } },
   },
 

@@ -36,6 +36,9 @@ return {
         cuda = { "clang-format" },
         rust = { "rustfmt" },
         lua = { "stylua" },
+        python = { "ruff_organize_imports", "ruff_format" }, -- isort + black, in one tool
+        sql = { "sql_formatter" },
+        htmldjango = { "djlint" },
       },
       default_format_opts = { lsp_format = "fallback" },
       -- Policy lives in util/format.lua: global on, C-family opt-in per repo, per-buffer toggle <leader>of

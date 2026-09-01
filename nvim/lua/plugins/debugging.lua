@@ -4,6 +4,7 @@ return {
     dependencies = {
       { "rcarriga/nvim-dap-ui", dependencies = { "nvim-neotest/nvim-nio" } },
       { "theHamsta/nvim-dap-virtual-text", opts = { virt_text_pos = "eol" } },
+      "mfussenegger/nvim-dap-python",
     },
     keys = {
       { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle breakpoint" },
@@ -72,6 +73,35 @@ return {
       dap.configurations.c = dap.configurations.cpp
       dap.configurations.cuda = dap.configurations.cpp
       dap.configurations.rust = dap.configurations.cpp
+
+      -- Python: debugpy from Mason. nvim-dap-python resolves the interpreter per project
+      -- ($VIRTUAL_ENV, then ./.venv or ./venv, then python3), so a Django or FastAPI app
+      -- debugs inside its own environment. Mason's python only hosts the adapter.
+      local debugpy_python = vim.fn.stdpath("data") .. "/mason/packages/debugpy/venv/bin/python"
+      if vim.fn.executable(debugpy_python) == 1 then
+        require("dap-python").setup(debugpy_python)
+        local py = dap.configurations.python
+        table.insert(py, {
+          name = "Django: runserver",
+          type = "python", request = "launch",
+          program = "${workspaceFolder}/manage.py",
+          args = { "runserver", "--noreload" },   -- --noreload: the autoreloader forks and loses the debugger
+          django = true, justMyCode = false, console = "integratedTerminal",
+        })
+        table.insert(py, {
+          name = "FastAPI: uvicorn",
+          type = "python", request = "launch",
+          module = "uvicorn",
+          args = function() return { vim.fn.input("app module (e.g. app.main:app): "), "--reload-exclude", "*" } end,
+          justMyCode = false, console = "integratedTerminal",
+        })
+        table.insert(py, {
+          name = "pytest: current file",
+          type = "python", request = "launch",
+          module = "pytest", args = { "${file}", "-x", "-q" },
+          justMyCode = false, console = "integratedTerminal",
+        })
+      end
     end,
   },
 }

@@ -5,7 +5,11 @@ local system_clangd = has("/usr/bin/clangd") and "/usr/bin/clangd" or (has("clan
 local rustup_ra = "/usr/lib/rustup/bin/rust-analyzer"
 local system_ra = has(rustup_ra) and rustup_ra or (has("rust-analyzer") and "rust-analyzer" or nil)
 
-local mason_tools = { "stylua", "codelldb", "tree-sitter-cli" } -- tree-sitter-cli compiles treesitter parsers
+local mason_tools = {
+  "stylua", "codelldb", "tree-sitter-cli", -- tree-sitter-cli compiles treesitter parsers
+  "debugpy",                            -- Python debug adapter (nvim-dap-python)
+  "sql-formatter", "djlint",            -- SQL and Django-template formatters (conform)
+}
 if not system_clangd then table.insert(mason_tools, "clangd") end
 if not has("clang-format") then table.insert(mason_tools, "clang-format") end
 if not system_ra then table.insert(mason_tools, "rust-analyzer") end
@@ -30,7 +34,7 @@ return {
       {
         "mason-org/mason-lspconfig.nvim",
         opts = {
-          ensure_installed = { "lua_ls", "glsl_analyzer" },
+          ensure_installed = { "lua_ls", "glsl_analyzer", "basedpyright", "ruff" },
           -- clangd and rust-analyzer come from the system toolchains (pinned below)
           automatic_enable = { exclude = { "clangd", "rust_analyzer" } },
         },
@@ -73,7 +77,23 @@ return {
         },
       })
 
-      vim.lsp.enable({ "clangd", "rust_analyzer", "lua_ls", "glsl_analyzer" })
+      -- Python: basedpyright for types and navigation, ruff for lint fixes and import sorting.
+      -- Both find the project's .venv on their own. Ruff's hover is empty, so it is switched
+      -- off on attach below and K stays on basedpyright. Django and FastAPI need nothing extra.
+      vim.lsp.config("basedpyright", {
+        settings = {
+          basedpyright = {
+            analysis = {
+              typeCheckingMode = "standard",     -- "strict" is too noisy on Django code
+              diagnosticMode = "openFilesOnly",
+              inlayHints = { callArgumentNames = true, functionReturnTypes = true, variableTypes = false },
+            },
+          },
+        },
+      })
+      vim.lsp.config("ruff", {})
+
+      vim.lsp.enable({ "clangd", "rust_analyzer", "lua_ls", "glsl_analyzer", "basedpyright", "ruff" })
 
       -- Per-buffer setup when a server attaches.
       -- Neovim 0.11+ already provides: grn rename, gra code action, grr references, gri implementation,
@@ -97,6 +117,10 @@ return {
 
           if client.name == "clangd" then
             map("n", "<A-o>", "<cmd>LspClangdSwitchSourceHeader<cr>", "Switch source/header")
+          end
+
+          if client.name == "ruff" then
+            client.server_capabilities.hoverProvider = false -- basedpyright owns K
           end
 
           if client:supports_method("textDocument/inlayHint") then
