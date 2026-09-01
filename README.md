@@ -72,6 +72,11 @@ Doing it by hand instead:
   browser. Static images only - DMS has no video/mpv backend and uses plain
   `Image`, so a GIF renders as a still frame. Video exists only for the lock
   screen. For a video wallpaper you would reinstall mpvpaper.
+- `wallpaperTransition` lives in `~/.local/state/DankMaterialShell/session.json`,
+  not `settings.json` - `dms ipc call settings set` returns `undefined` for it.
+  DMS holds session state in memory and rewrites that file on shutdown, so an
+  edit made while DMS is running gets clobbered. Stop DMS, write the value,
+  start it again. Set to `random` to cycle through all seven transitions.
 - **The backdrop layer-rule matters.** DMS paints on a surface named
   `quickshell`; without `place-within-backdrop true` matching it, the backdrop
   is empty during workspace switches and shows as a grey band across the screen.
