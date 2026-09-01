@@ -79,7 +79,32 @@ if command -v dms >/dev/null && [ -f "$REPO/dms-plugins.txt" ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 6. fonts
+# 6. dsearch - the DMS launcher's file search backend. Not in any repo or the
+#    AUR; without it file search in the launcher silently returns nothing.
+# ---------------------------------------------------------------------------
+if ! command -v dsearch >/dev/null; then
+    say "Installing dsearch (DMS launcher file search)"
+    tmp=$(mktemp -d)
+    if curl -fsSL -o "$tmp/d.tar.gz" \
+        https://github.com/AvengeMedia/danksearch/releases/latest/download/dsearch-linux-amd64.tar.gz \
+       && curl -fsSL -o "$tmp/d.sha256" \
+        https://github.com/AvengeMedia/danksearch/releases/latest/download/dsearch-linux-amd64.tar.gz.sha256
+    then
+        if [ "$(awk '{print $1}' "$tmp/d.sha256")" = "$(sha256sum "$tmp/d.tar.gz" | awk '{print $1}')" ]; then
+            tar xzf "$tmp/d.tar.gz" -C "$tmp"
+            install -Dm755 "$tmp/dsearch-linux-amd64" "$HOME/.local/bin/dsearch"
+            echo "    installed - run 'dsearch index generate' once after login"
+        else
+            echo "    checksum MISMATCH - not installing" >&2
+        fi
+    else
+        echo "    download failed - install by hand from github.com/AvengeMedia/danksearch" >&2
+    fi
+    rm -rf "$tmp"
+fi
+
+# ---------------------------------------------------------------------------
+# 7. fonts
 # ---------------------------------------------------------------------------
 if [ -d "$REPO/fonts" ]; then
     say "Installing fonts"
