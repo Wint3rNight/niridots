@@ -1,21 +1,21 @@
-# Spotify theming. Active: Cathedral (our own colour scheme on Sleek's layout).
+# Spotify theming. Active: SpicetifyCat, sub-theme "Stray".
 #
-# Cathedral/color.ini is ours and IS tracked. Sleek's user.css is not - fetch it:
-#   git clone --depth 1 https://github.com/spicetify/spicetify-themes.git \
-#       ~/.config/spicetify/Themes/.official
-#   mkdir -p ~/.config/spicetify/Themes/Cathedral
-#   cp ~/.config/spicetify/Themes/.official/Sleek/user.css \
-#      ~/.config/spicetify/Themes/Cathedral/
-#   # color.ini comes from this repo
-#   spicetify config current_theme Cathedral color_scheme Cathedral
+#   git clone --depth 1 https://github.com/Adrien5902/SpicetifyCat.git \
+#       ~/.config/spicetify/Themes/SpicetifyCat
+#   # sub-theme PNGs live in themes/<Variant>/ but spicetify only copies from
+#   # assets/, so they must be staged there:
+#   cp ~/.config/spicetify/Themes/SpicetifyCat/themes/Stray/{background,liked_songs}.png \
+#      ~/.config/spicetify/Themes/SpicetifyCat/assets/
+#   spicetify config current_theme SpicetifyCat color_scheme Stray \
+#                     inject_theme_js 1 replace_colors 1 overwrite_assets 1
 #   spicetify backup apply
 #
-# Two schemes in color.ini: [Cathedral] blood-red accents, [Cathedral-Gilt] gold.
-#   spicetify config color_scheme Cathedral-Gilt && spicetify apply
+# Variants: Stray (dark, suits the gothic theme), Purple, NyanCat, Summer_Sky.
+# To switch, restage that variant's PNGs into assets/ then:
+#   spicetify config color_scheme <Variant> && spicetify apply
+#
+# Our own Cathedral scheme (Sleek layout + gothic palette) is still in
+# .config/spicetify/Themes/Cathedral/color.ini if you want to go back.
 #
 # AFTER EVERY SPOTIFY UPDATE (spotify-launcher auto-updates and reverts the
 # patch): spicetify backup apply
-#
-# Tried and rejected: Glassify (glassmorphic, needed an npm build, did not suit
-# the gothic look) and Frostify (no visible effect - targets an older Spotify
-# DOM). Both removed.

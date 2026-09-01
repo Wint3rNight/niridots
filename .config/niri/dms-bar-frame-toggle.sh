@@ -1,48 +1,71 @@
 #!/usr/bin/env bash
 # Toggle the frame (and with it, the space the bar reserves).
 #
-# WHY THIS RESTARTS DMS: frameEnabled is only read when the shell starts.
-# Flipping it at runtime changes the setting but the frame surfaces stay up, so
-# the space is not actually reclaimed until DMS reloads. A DMS limitation.
+# WHY THIS RELOADS DMS: frameEnabled is only read when the shell starts.
+# Verified - setting it true at runtime produces zero frame surfaces until a
+# restart. So a ~8s reload is unavoidable.
 #
-# WHY THE LOCK: pressing this twice quickly used to fire two overlapping
-# `dms restart` calls, leaving two shell instances and two stacked bars. The
-# flock makes a second press while a reload is in flight a no-op.
+# WHY THE PENDING FILE: the reload takes long enough that a second press lands
+# mid-flight. Silently dropping it made the key feel dead. Now a press during a
+# reload is queued, and the running instance toggles again when it finishes -
+# so pressing twice ends up back where you started, as you'd expect.
+#
+# State is read from settings.json, not IPC, because DMS is down for part of
+# this and `dms ipc call settings get` returns nothing then.
 #
 # Mod+B stays a plain, instant bar toggle. This is the heavier one.
 
 set -u
 
-LOCK="${XDG_RUNTIME_DIR:-/tmp}/dms-frame-toggle.lock"
+SETTINGS="$HOME/.config/DankMaterialShell/settings.json"
+RUN="${XDG_RUNTIME_DIR:-/tmp}"
+LOCK="$RUN/dms-frame-toggle.lock"
+PENDING="$RUN/dms-frame-toggle.pending"
+
 exec 9>"$LOCK"
 if ! flock -n 9; then
-    dms notify --title "Frame" --message "already reloading" 2>/dev/null || true
+    : > "$PENDING"          # a reload is in flight - ask it to toggle once more
     exit 0
 fi
 
-frame=$(dms ipc call settings get frameEnabled 2>/dev/null | tail -1 | tr -d '"')
+read_frame() {
+    python3 -c "
+import json
+try: print(json.load(open('$SETTINGS')).get('frameEnabled', False))
+except Exception: print('False')"
+}
 
-if [ "$frame" = "true" ]; then
-    dms ipc call settings set frameEnabled false >/dev/null 2>&1
-    state="off"
-else
-    dms ipc call settings set frameEnabled true >/dev/null 2>&1
-    state="on"
-fi
+write_frame() {
+    python3 -c "
+import json
+p='$SETTINGS'
+d=json.load(open(p))
+d['frameEnabled'] = ('$1' == 'true')
+json.dump(d, open(p,'w'), indent=2)"
+}
 
-# Stop every instance before starting one, so a stale shell can never survive
-# into a second bar.
-for p in $(pgrep -x qs) $(pgrep -x dms); do kill "$p" 2>/dev/null; done
-for _ in $(seq 1 30); do
-    pgrep -x qs >/dev/null 2>&1 || break
-    sleep 0.2
+while :; do
+    rm -f "$PENDING"
+
+    cur=$(read_frame)
+    [ "$cur" = "True" ] && new=false || new=true
+
+    # Stop every instance first, so a stale shell can never survive into a
+    # second stacked bar, then write the setting while nothing can overwrite it.
+    for p in $(pgrep -x qs) $(pgrep -x dms); do kill "$p" 2>/dev/null; done
+    for _ in $(seq 1 30); do pgrep -x qs >/dev/null 2>&1 || break; sleep 0.2; done
+
+    write_frame "$new"
+
+    niri msg action spawn -- dms run >/dev/null 2>&1
+    for _ in $(seq 1 60); do
+        niri msg -j layers 2>/dev/null | grep -q 'dms:bar' && break
+        sleep 0.5
+    done
+
+    # Another press arrived while we were reloading - honour it.
+    [ -e "$PENDING" ] || break
 done
 
-niri msg action spawn -- dms run >/dev/null 2>&1
-
-for _ in $(seq 1 60); do
-    niri msg -j layers 2>/dev/null | grep -q 'dms:bar' && break
-    sleep 0.5
-done
-
-dms notify --title "Frame" --message "$state" 2>/dev/null || true
+sleep 1
+dms notify --title "Frame" --message "$new" 2>/dev/null || true
