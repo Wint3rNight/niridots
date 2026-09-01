@@ -169,7 +169,6 @@ mesa-utils
 micro
 mkinitcpio
 modemmanager
-mpvpaper
 mtools
 mysql-workbench
 nano
@@ -231,7 +230,9 @@ powerdevil
 pv
 python
 python-defusedxml
+python-numpy
 python-packaging
+python-pillow
 python-pip
 python-pipx
 python-setuptools
@@ -300,7 +301,6 @@ vulkan-utility-libraries
 vulkan-validation-layers
 warp-terminal-bin
 waybar
-waypaper
 wget
 which
 windsurf
