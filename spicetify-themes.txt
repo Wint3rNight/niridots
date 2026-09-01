@@ -1,2 +1,21 @@
-Frostify https://github.com/KooshaPari/Frostify
-Glassify https://github.com/sanoojes/spicetify-glassify
+# Spicetify themes. Clones are gitignored - reinstall with these steps.
+#
+# Glassify (active) - glassmorphic, needs a build step:
+#   git clone --depth 1 https://github.com/sanoojes/spicetify-glassify.git \
+#       ~/.config/spicetify/Themes/Glassify
+#   cd ~/.config/spicetify/Themes/Glassify
+#   npm install --no-audit --no-fund
+#   npm run build:theme          # NOT `npm run build` - that also builds vitepress docs
+#   cp dist/user.css dist/theme.js .
+#   spicetify config current_theme Glassify inject_theme_js 1 replace_colors 1
+#   spicetify backup apply
+#
+# Frostify - plain CSS, no build, but targets an older Spotify DOM and had no
+# visible effect when tried on 2026-09-01. Kept for reference.
+#   git clone --depth 1 https://github.com/KooshaPari/Frostify.git \
+#       ~/.config/spicetify/Themes/Frostify
+#   ln -sf config.ini ~/.config/spicetify/Themes/Frostify/color.ini
+#   spicetify config replace_colors 0
+#
+# AFTER EVERY SPOTIFY UPDATE (spotify-launcher auto-updates and reverts the
+# patch): spicetify backup apply
