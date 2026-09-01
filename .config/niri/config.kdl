@@ -269,6 +269,16 @@ layer-rule {
     place-within-backdrop true
 }
 
+// Logged-in web app panels (web-panel.sh). Chrome --app windows only -
+// Zen stays the default browser and is unaffected by this rule.
+window-rule {
+    match app-id="^chrome-"
+    open-floating true
+    default-column-width { proportion 0.34; }
+    default-window-height { proportion 0.92; }
+    opacity 0.97
+}
+
 // RETIRED (DMS replaced this) - swaync control center
 // layer-rule {
 //     match namespace="swaync-control-center"
@@ -321,6 +331,10 @@ binds {
     Mod+Shift+P { spawn "dms" "ipc" "call" "processlist" "toggle"; }
     Mod+Slash { spawn "dms" "ipc" "call" "keybinds" "toggle" "niri"; }
     Mod+Y { spawn "dms" "ipc" "call" "notepad" "toggle"; }
+    Mod+Shift+B { spawn "bash" "-c" "~/.config/niri/dms-bar-frame-toggle.sh"; }
+    Mod+Shift+S { spawn "dms" "ipc" "call" "quickCapture" "fromClipboard" "edit"; }
+    Mod+Shift+Y { spawn "bash" "-c" "~/.config/niri/web-panel.sh chatgpt"; }
+    Mod+Ctrl+Y  { spawn "bash" "-c" "~/.config/niri/web-panel.sh gemini"; }
     Mod+Shift+C { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh configs"; }
     Mod+X { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
     // Lock now (qylock / quickshell). Theme: ~/.config/qylock/theme

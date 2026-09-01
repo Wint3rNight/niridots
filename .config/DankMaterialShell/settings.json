@@ -617,6 +617,7 @@
       "rightWidgets": [
         "systemTray",
         "clipboard",
+        "quickCapture",
         "cpuUsage",
         "memUsage",
         "notificationButton",
@@ -641,14 +642,15 @@
       "autoHide": false,
       "autoHideDelay": 250,
       "openOnOverview": false,
-      "visible": false,
+      "visible": true,
       "popupGapsAuto": true,
       "popupGapsManual": 4,
       "widgetPadding": 9,
-      "barInsetPadding": 8
+      "barInsetPadding": 8,
+      "shadowIntensity": 0
     }
   ],
-  "desktopClockEnabled": true,
+  "desktopClockEnabled": false,
   "desktopClockStyle": "analog",
   "desktopClockTransparency": 0.8,
   "desktopClockColorMode": "primary",
@@ -675,7 +677,7 @@
   "desktopClockDisplayPreferences": [
     "all"
   ],
-  "systemMonitorEnabled": true,
+  "systemMonitorEnabled": false,
   "systemMonitorShowHeader": true,
   "systemMonitorTransparency": 0.8,
   "systemMonitorColorMode": "primary",
@@ -717,36 +719,7 @@
   "systemMonitorVariants": [],
   "desktopWidgetPositions": {},
   "desktopWidgetGridSettings": {},
-  "desktopWidgetInstances": [
-    {
-      "id": "clock1",
-      "widgetType": "desktopClock",
-      "enabled": true,
-      "config": {},
-      "positions": {
-        "eDP-1": {
-          "width": 200,
-          "height": 200,
-          "x": 860,
-          "y": 440
-        }
-      }
-    },
-    {
-      "id": "sysmon1",
-      "widgetType": "systemMonitor",
-      "enabled": true,
-      "config": {},
-      "positions": {
-        "eDP-1": {
-          "width": 320,
-          "height": 480,
-          "x": 800,
-          "y": 300
-        }
-      }
-    }
-  ],
+  "desktopWidgetInstances": [],
   "desktopWidgetGroups": [],
   "builtInPluginSettings": {
     "dms_settings_search": {
@@ -771,7 +744,7 @@
   "frameThickness": 6,
   "frameRounding": 12,
   "frameColor": "",
-  "frameOpacity": 1,
+  "frameOpacity": 0.76,
   "frameScreenPreferences": [
     "all"
   ],
