@@ -1,6 +1,8 @@
-emojiLauncher
-quickCapture
-webSearch
-calculator
 dankKDEConnect
 dmsAgent
+emojiLauncher
+quickCapture
+sathiAi
+webSearch
+aiAssistant
+calculator

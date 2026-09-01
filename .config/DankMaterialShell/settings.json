@@ -717,7 +717,36 @@
   "systemMonitorVariants": [],
   "desktopWidgetPositions": {},
   "desktopWidgetGridSettings": {},
-  "desktopWidgetInstances": [],
+  "desktopWidgetInstances": [
+    {
+      "id": "clock1",
+      "widgetType": "desktopClock",
+      "enabled": true,
+      "config": {},
+      "positions": {
+        "eDP-1": {
+          "width": 200,
+          "height": 200,
+          "x": 860,
+          "y": 440
+        }
+      }
+    },
+    {
+      "id": "sysmon1",
+      "widgetType": "systemMonitor",
+      "enabled": true,
+      "config": {},
+      "positions": {
+        "eDP-1": {
+          "width": 320,
+          "height": 480,
+          "x": 800,
+          "y": 300
+        }
+      }
+    }
+  ],
   "desktopWidgetGroups": [],
   "builtInPluginSettings": {
     "dms_settings_search": {
@@ -739,14 +768,14 @@
   "launcherPluginVisibility": {},
   "launcherPluginOrder": [],
   "frameEnabled": true,
-  "frameThickness": 16,
-  "frameRounding": 23,
+  "frameThickness": 6,
+  "frameRounding": 12,
   "frameColor": "",
   "frameOpacity": 1,
   "frameScreenPreferences": [
     "all"
   ],
-  "frameBarSize": 40,
+  "frameBarSize": 30,
   "frameShowOnOverview": false,
   "frameBlurEnabled": true,
   "frameCloseGaps": true,
