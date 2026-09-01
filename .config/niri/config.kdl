@@ -69,6 +69,7 @@ spawn-at-startup "sh" "-c" "/home/winter/.config/niri/launch-dashboard.sh"
 environment {
     QT_QPA_PLATFORMTHEME "qt6ct"
     LANG "en_IN.UTF-8"
+    DMS_DISABLE_MATUGEN "1"
 }
 
 prefer-no-csd

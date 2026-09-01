@@ -1,6 +1,6 @@
 {
-  "currentThemeName": "dynamic",
-  "currentThemeCategory": "dynamic",
+  "currentThemeName": "custom",
+  "currentThemeCategory": "generic",
   "customThemeFile": "/home/winter/.config/DankMaterialShell/themes/00-cathedral.json",
   "registryThemeVariants": {},
   "matugenScheme": "scheme-tonal-spot",
@@ -411,8 +411,8 @@
   "fadeToDpmsEnabled": true,
   "fadeToDpmsGracePeriod": 5,
   "launchPrefix": "",
-  "gtkThemingEnabled": true,
-  "qtThemingEnabled": true,
+  "gtkThemingEnabled": false,
+  "qtThemingEnabled": false,
   "syncModeWithPortal": true,
   "terminalsAlwaysDark": false,
   "muxType": "zellij",
@@ -609,7 +609,14 @@
   "displayProfileAutoSelect": false,
   "displayShowDisconnected": false,
   "displaySnapToEdge": true,
-  "connectedFrameBarStyleBackups": {},
+  "connectedFrameBarStyleBackups": {
+    "default": {
+      "shadowIntensity": 0,
+      "squareCorners": false,
+      "gothCornersEnabled": false,
+      "borderEnabled": false
+    }
+  },
   "barConfigs": [
     {
       "id": "default",
@@ -756,7 +763,7 @@
   ],
   "launcherPluginVisibility": {},
   "launcherPluginOrder": [],
-  "frameEnabled": false,
+  "frameEnabled": true,
   "frameThickness": 6,
   "frameRounding": 12,
   "frameColor": "",
