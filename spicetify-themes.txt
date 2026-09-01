@@ -1,0 +1,2 @@
+Frostify https://github.com/KooshaPari/Frostify
+Glassify https://github.com/sanoojes/spicetify-glassify

@@ -1,0 +1,22 @@
+{
+  "name": "Cathedral",
+  "primary": "#a02c3c",
+  "primaryText": "#f5f0e8",
+  "primaryContainer": "#6e1f2a",
+  "secondary": "#c9a227",
+  "surface": "#14141b",
+  "surfaceText": "#d8d3c8",
+  "surfaceVariant": "#1c1c26",
+  "surfaceVariantText": "#a8a396",
+  "surfaceTint": "#a02c3c",
+  "background": "#0b0b0f",
+  "backgroundText": "#d8d3c8",
+  "outline": "#3a3a48",
+  "surfaceContainer": "#14141b",
+  "surfaceContainerHigh": "#1c1c26",
+  "surfaceContainerHighest": "#23232e",
+  "error": "#c84a58",
+  "warning": "#c9a227",
+  "info": "#5f7d78",
+  "matugen_type": "scheme-content"
+}

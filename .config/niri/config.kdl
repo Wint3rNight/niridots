@@ -334,6 +334,8 @@ binds {
     Mod+Slash { spawn "dms" "ipc" "call" "keybinds" "toggle" "niri"; }
     Mod+Y { spawn "dms" "ipc" "call" "notepad" "toggle"; }
     Mod+Z { spawn "dms" "ipc" "call" "mux" "toggle"; }
+    Mod+Ctrl+T       { spawn "bash" "-c" "~/.config/niri/theme-cycle.sh next"; }
+    Mod+Ctrl+Shift+T { spawn "bash" "-c" "~/.config/niri/theme-cycle.sh reset"; }
     Mod+Shift+B { spawn "bash" "-c" "~/.config/niri/dms-bar-frame-toggle.sh"; }
     Mod+Shift+S { spawn "dms" "ipc" "call" "quickCapture" "fromClipboard" "edit"; }
     Mod+Shift+C { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh configs"; }
