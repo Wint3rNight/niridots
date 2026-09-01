@@ -59,7 +59,8 @@ spawn-at-startup "dms" "run"
 // Idle: lock after 5 min, monitors off after 10, and always lock before suspend.
 spawn-at-startup "sh" "-c" "pkill -x swayidle; swayidle -w timeout 300 '$HOME/Projects/qylock/quickshell-lockscreen/lock.sh' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep '$HOME/Projects/qylock/quickshell-lockscreen/lock.sh'"
 // spawn-at-startup "awww-daemon"
-spawn-at-startup "waypaper" "--restore"
+// RETIRED (DMS paints the wallpaper now)
+// spawn-at-startup "waypaper" "--restore"
 // RETIRED (DMS has its own clipboard store)
 // spawn-at-startup "sh" "-c" "wl-paste --watch cliphist store"
 spawn-at-startup "sh" "-c" "/home/winter/.config/niri/launch-dashboard.sh"
@@ -304,7 +305,7 @@ binds {
     Mod+E { spawn "kitty" "yazi"; }
     Mod+V { spawn "sh" "-c" "/home/winter/.config/niri/launch-dashboard.sh"; }
     Mod+B { spawn "dms" "ipc" "call" "bar" "toggle" "index" "0"; }
-    Mod+W { spawn "waypaper" "--random"; }
+    Mod+W { spawn "dms" "ipc" "call" "dash" "toggle" "wallpaper"; }
     Mod+D { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Mod+S { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh find"; }
     Mod+G { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh google"; }

@@ -67,5 +67,9 @@ Doing it by hand instead:
   so the settings in `config.kdl` stay authoritative.
 - The lock screen is qylock (`Mod+Shift+X`, and swayidle at 5 min), not the DMS
   one. Enabling `lockBeforeSuspend` in DMS would stack two lock screens.
-- `.config/waybar` and `.config/swaync` are the pre-DMS bar and notification
-  daemon. They are retired but kept as a fallback.
+- DMS paints the wallpaper (static images only - it has no video/mpv backend,
+  and uses plain `Image`, so a GIF renders as a still frame). Video wallpaper
+  in DMS exists only for the lock screen. `Mod+W` opens its wallpaper browser.
+- `.config/waybar`, `.config/swaync` and `.config/waypaper` are the pre-DMS bar,
+  notification daemon and wallpaper tool. Retired but kept as a fallback -
+  waypaper + mpvpaper are still installed if you ever want a video wallpaper.
