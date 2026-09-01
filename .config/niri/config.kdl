@@ -54,6 +54,7 @@ layout {
     }
 }
 
+spawn-at-startup "dsearch" "serve"   // file search backend for the DMS launcher
 spawn-at-startup "dms" "run"
 // spawn-at-startup "swaync"   // retired: DMS owns notifications
 // Idle: lock after 5 min, monitors off after 10, and always lock before suspend.
@@ -319,7 +320,8 @@ binds {
     Mod+Shift+W { spawn "dms" "ipc" "call" "dash" "toggle" "wallpaper"; }
     Mod+D { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Mod+S { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh find"; }
-    Mod+G { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh google"; }
+    Mod+G { spawn "bash" "-c" "~/.config/niri/web-panel.sh chatgpt"; }
+    Mod+Shift+G { spawn "bash" "-c" "~/.config/niri/web-panel.sh gemini"; }
     Mod+A { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh calc"; }
     Mod+M { spawn "dms" "ipc" "call" "dash" "toggle" "media"; }
     Mod+Period { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh emoji"; }
@@ -334,8 +336,6 @@ binds {
     Mod+Z { spawn "dms" "ipc" "call" "mux" "toggle"; }
     Mod+Shift+B { spawn "bash" "-c" "~/.config/niri/dms-bar-frame-toggle.sh"; }
     Mod+Shift+S { spawn "dms" "ipc" "call" "quickCapture" "fromClipboard" "edit"; }
-    Mod+Shift+Y { spawn "bash" "-c" "~/.config/niri/web-panel.sh chatgpt"; }
-    Mod+Ctrl+Y  { spawn "bash" "-c" "~/.config/niri/web-panel.sh gemini"; }
     Mod+Shift+C { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh configs"; }
     Mod+X { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
     // Lock now (qylock / quickshell). Theme: ~/.config/qylock/theme
