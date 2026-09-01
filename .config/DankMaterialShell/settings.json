@@ -557,7 +557,7 @@
   ],
   "powerMenuDefaultAction": "logout",
   "powerMenuGridLayout": false,
-  "customPowerActionLock": "",
+  "customPowerActionLock": "/home/winter/Projects/qylock/quickshell-lockscreen/lock.sh",
   "customPowerActionLogout": "",
   "customPowerActionSuspend": "",
   "customPowerActionHibernate": "",
