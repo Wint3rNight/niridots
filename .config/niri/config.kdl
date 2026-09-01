@@ -331,6 +331,7 @@ binds {
     Mod+Shift+P { spawn "dms" "ipc" "call" "processlist" "toggle"; }
     Mod+Slash { spawn "dms" "ipc" "call" "keybinds" "toggle" "niri"; }
     Mod+Y { spawn "dms" "ipc" "call" "notepad" "toggle"; }
+    Mod+Z { spawn "dms" "ipc" "call" "mux" "toggle"; }
     Mod+Shift+B { spawn "bash" "-c" "~/.config/niri/dms-bar-frame-toggle.sh"; }
     Mod+Shift+S { spawn "dms" "ipc" "call" "quickCapture" "fromClipboard" "edit"; }
     Mod+Shift+Y { spawn "bash" "-c" "~/.config/niri/web-panel.sh chatgpt"; }
