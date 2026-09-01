@@ -160,7 +160,7 @@
   "showWorkspaceName": false,
   "showWorkspacePadding": false,
   "workspaceScrolling": true,
-  "showWorkspaceApps": false,
+  "showWorkspaceApps": true,
   "workspaceDragReorder": true,
   "maxWorkspaceIcons": 3,
   "workspaceAppIconSizeOffset": 0,
@@ -532,7 +532,30 @@
   "notificationHistorySaveLow": true,
   "notificationHistorySaveNormal": true,
   "notificationHistorySaveCritical": true,
-  "notificationRules": [],
+  "notificationRules": [
+    {
+      "enabled": true,
+      "field": "appName",
+      "pattern": "spotify",
+      "matchType": "contains",
+      "action": "mute"
+    },
+    {
+      "enabled": true,
+      "field": "summary",
+      "pattern": "screenshot|capture",
+      "matchType": "regex",
+      "action": "popup_only"
+    },
+    {
+      "enabled": true,
+      "field": "summary",
+      "pattern": "battery",
+      "matchType": "contains",
+      "action": "default",
+      "urgency": "critical"
+    }
+  ],
   "notificationFocusedMonitor": false,
   "osdAlwaysShowValue": false,
   "osdPosition": 5,
@@ -586,14 +609,7 @@
   "displayProfileAutoSelect": false,
   "displayShowDisconnected": false,
   "displaySnapToEdge": true,
-  "connectedFrameBarStyleBackups": {
-    "default": {
-      "shadowIntensity": 0,
-      "squareCorners": false,
-      "gothCornersEnabled": false,
-      "borderEnabled": false
-    }
-  },
+  "connectedFrameBarStyleBackups": {},
   "barConfigs": [
     {
       "id": "default",
@@ -639,7 +655,7 @@
       "borderOpacity": 1,
       "borderThickness": 1,
       "fontScale": 1,
-      "autoHide": false,
+      "autoHide": true,
       "autoHideDelay": 250,
       "openOnOverview": false,
       "visible": true,
@@ -740,7 +756,7 @@
   ],
   "launcherPluginVisibility": {},
   "launcherPluginOrder": [],
-  "frameEnabled": true,
+  "frameEnabled": false,
   "frameThickness": 6,
   "frameRounding": 12,
   "frameColor": "",

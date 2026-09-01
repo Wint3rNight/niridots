@@ -321,7 +321,7 @@ binds {
     Mod+S { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh find"; }
     Mod+G { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh google"; }
     Mod+A { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh calc"; }
-    Mod+M { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh media"; }
+    Mod+M { spawn "dms" "ipc" "call" "dash" "toggle" "media"; }
     Mod+Period { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh emoji"; }
     Mod+Tab { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh windows"; }
     Mod+P { spawn "sh" "-c" "hyprpicker -a -f hex"; }
