@@ -46,6 +46,8 @@ Doing it by hand instead:
 
 ## Where things are
 
+- `SHORTCUTS.md` — every niri / DMS keybind, grouped by task. Keep it in sync with the
+  `binds` block in `config.kdl`. (`Mod+Slash` shows the same list live.)
 - `nvim/` — the Neovim config. `nvim/GUIDE.md` is the beginner's guide (every shortcut).
 - `.config/niri/config.kdl` — window manager, keybinds, window/layer rules, animations.
 - `.config/DankMaterialShell/` — the shell. `cathedral.json` is the theme;
@@ -105,9 +107,12 @@ Doing it by hand instead:
 - **`Mod+Shift+S` used to be dead.** It called `dms ipc call quickCapture ...`,
   which is not a DMS IPC target — `dms ipc call quickCapture fromClipboard edit`
   answers `Target not found`, so the key silently did nothing. It now opens
-  spotlight directly in file-search mode. Spotlight takes a mode argument
-  (`toggleWith files|apps|all|plugins|calc|clipboard`), which is also how
-  `Mod+Shift+V` — previously a duplicate of `Mod+N` — became clipboard history.
+  spotlight directly in file-search mode. Spotlight takes a mode argument, but only
+  **`all`, `apps`, `files`, `plugins`** are real — `Controller.setMode()` does no
+  validation, so an unknown mode (`clipboard`, `calc`) is assigned silently and then
+  behaves exactly like `all`. `Mod+Shift+V` — previously a duplicate of `Mod+N` — is
+  the apps-only launcher, which is worth having because
+  `dankLauncherV2IncludeFilesInAll` mixes files into `Mod+D`.
 - **Power profiles switch themselves now.** power-profiles-daemon only exposes
   the profiles; nothing was choosing between them, so the machine sat on
   `power-saver` while plugged into an RTX 3050 laptop. `system/` adds a oneshot
@@ -118,6 +123,15 @@ Doing it by hand instead:
 - **Night light is deliberately manual.** `Mod+Shift+M` toggles it;
   `dms ipc call night getSchedule` reports `Automation disabled` and nothing
   here turns that on.
+- **`dms ipc call inhibit` is a no-op on this machine**, which is why `Mod+Shift+I`
+  runs `.config/niri/idle-toggle.sh` instead. `inhibit` only flips
+  `SessionService.idleInhibited`, a bool whose one real consumer gates *DMS's own*
+  idle monitors — and every DMS timeout here is `0`, because swayidle + qylock do the
+  locking. DMS creates no `zwp_idle_inhibit` surface and no D-Bus ScreenSaver inhibit,
+  so it cannot reach swayidle; the call changed a control-centre label and nothing
+  else. The script stops swayidle (the only thing that locks or blanks here — logind
+  `IdleAction` is `ignore`) and mirrors the state back into the DMS flag so the
+  "Keep Awake" tile stays truthful.
 - **Opening a file from spotlight needs a working MIME handler.** The handler is
   `applications/nvim-kitty.desktop`, installed by `bootstrap.sh` step 9 along with
   the MIME defaults that point at it. It sets `Terminal=false` and calls

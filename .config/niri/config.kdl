@@ -348,15 +348,23 @@ binds {
     Mod+Shift+X { spawn "bash" "-c" "$HOME/Projects/qylock/quickshell-lockscreen/lock.sh"; }
     Mod+N { spawn "dms" "ipc" "call" "control-center" "toggle"; }
     Mod+Shift+N { spawn "dms" "ipc" "call" "notifications" "toggle"; }
-    // Mod+Shift+V used to be a second copy of Mod+N (control-center). Reclaimed for the
-    // clipboard history, where Ctrl-V muscle memory actually points.
-    Mod+Shift+V { spawn "dms" "ipc" "call" "spotlight" "toggleWith" "clipboard"; }
+    // Mod+Shift+V used to be a second copy of Mod+N (control-center).
+    // NOT clipboard: Mod+C already is, and "clipboard" is not a launcher mode anyway -
+    // Controller.qml only knows all/apps/files/plugins, and setMode() does no validation,
+    // so an unknown mode is assigned and silently behaves like "all" (i.e. like Mod+D).
+    // "apps" is the useful one left: dankLauncherV2IncludeFilesInAll is on, so Mod+D
+    // mixes files into app results. This is the launcher with apps only.
+    Mod+Shift+V { spawn "dms" "ipc" "call" "spotlight" "toggleWith" "apps"; }
 
     // --- System toggles -----------------------------------------------------
     // All of these are DMS IPC targets that were installed but unbound.
     Mod+Shift+A { spawn "dms" "ipc" "call" "audio" "cycleoutput"; }              // speakers <-> JBL
     Mod+Shift+O { spawn "dms" "ipc" "call" "settings" "focusOrToggle"; }         // DMS settings (Options)
-    Mod+Shift+I { spawn "dms" "ipc" "call" "inhibit" "toggle"; }                 // keep awake through a long build
+    // Keep awake through a long build. NOT `dms ipc call inhibit toggle`: that only flips
+    // a bool gating DMS's own idle monitors, and every DMS timeout here is 0 because
+    // swayidle + qylock do the locking. The script stops swayidle, which is the only
+    // thing on this box that locks or blanks (logind IdleAction is "ignore").
+    Mod+Shift+I { spawn "bash" "-c" "~/.config/niri/idle-toggle.sh"; }
     // Night light stays fully manual: `night getSchedule` reports "Automation disabled"
     // and this binding does not change that. It only flips the filter on and off now.
     Mod+Shift+M { spawn "dms" "ipc" "call" "night" "toggle"; }                   // Moon
