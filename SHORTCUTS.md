@@ -16,7 +16,7 @@ is down, and the one that ships with the repo.
 |---|---|
 | `Mod+D` | Spotlight (everything: apps, files, folders, plugins) |
 | `Mod+Shift+V` | Spotlight, **apps only** — no files mixed in |
-| `Mod+Shift+S` | Spotlight, **files only** |
+| `Mod+S` | Spotlight, **files only** |
 | `Mod+C` | Clipboard history |
 | `Mod+N` | Control centre |
 | `Mod+Shift+N` | Notification centre |
@@ -137,14 +137,13 @@ Idle timers, when on: **lock at 5 min, monitors off at 10 min**, and lock before
 **`Mod+Shift+E` quits niri** and is one Shift away from `Mod+E` (yazi). Left as-is
 because it is the niri default, but it is the one dangerous key on this list.
 
-**Free keys**, if you want to bind something: `Mod+I`, `Mod+S`, `Mod+U`, `Mod+Shift+Q`,
-`Mod+Shift+Y`.
+**Free keys**, if you want to bind something: `Mod+I`, `Mod+U`, `Mod+Shift+Q`,
+`Mod+Shift+S`, `Mod+Shift+Y`.
 
-`Mod+S` used to be a rofi file search. It was removed as a duplicate of `Mod+Shift+S`:
-the rofi one shelled out to `fd --type f . $HOME` on every press — re-walking the whole
-home directory with no index — and then opened the result with `xdg-open`. Spotlight's
-file mode is backed by the dsearch index. `rofi-find.sh` and its `find)` case in
-`rofi-toggle.sh` went with it.
+`Mod+S` was a rofi file search before it was a spotlight one. The rofi version shelled
+out to `fd --type f . $HOME` on every press — re-walking the whole home directory with
+no index — and then opened the result with `xdg-open`. Spotlight's file mode uses the
+dsearch index instead. `rofi-find.sh` and its `find)` case in `rofi-toggle.sh` are gone.
 
 **Unbound DMS IPC targets** worth knowing about — see `dms ipc` for the full surface:
 `systemupdater`, `dock`, `sessions`, `color-picker`, `theme` (light/dark),

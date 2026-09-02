@@ -104,10 +104,12 @@ Doing it by hand instead:
   default sink. Remove that file if you ever want to pin Spotify to its own device.
 - `.config/waybar` and `.config/swaync` are the pre-DMS bar and notification
   daemon. Retired but kept as a fallback.
-- **`Mod+Shift+S` used to be dead.** It called `dms ipc call quickCapture ...`,
+- **`Mod+Shift+S` used to be dead** (file search now lives on `Mod+S`, and
+  `Mod+Shift+S` is free). It called `dms ipc call quickCapture ...`,
   which is not a DMS IPC target — `dms ipc call quickCapture fromClipboard edit`
-  answers `Target not found`, so the key silently did nothing. It now opens
-  spotlight directly in file-search mode. Spotlight takes a mode argument, but only
+  answers `Target not found`, so the key silently did nothing. File search moved to
+  `Mod+S`, replacing a rofi picker that re-walked all of `$HOME` with `fd` on every
+  press. Spotlight takes a mode argument, but only
   **`all`, `apps`, `files`, `plugins`** are real — `Controller.setMode()` does no
   validation, so an unknown mode (`clipboard`, `calc`) is assigned silently and then
   behaves exactly like `all`. `Mod+Shift+V` — previously a duplicate of `Mod+N` — is
