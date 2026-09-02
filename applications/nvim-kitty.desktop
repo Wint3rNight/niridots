@@ -1,0 +1,24 @@
+[Desktop Entry]
+Type=Application
+Name=Neovim (kitty)
+GenericName=Text Editor
+Comment=Open text files in Neovim inside a kitty window
+
+# Terminal=false is deliberate. A Terminal=true entry (like the stock
+# nvim.desktop or micro.desktop) forces the launcher to go find a terminal:
+# xdg-open and GLib both search a hardcoded list that does NOT include kitty.
+# On this machine the only match is konsole, so text files were opening in
+# konsole instead of kitty. Launching kitty explicitly removes that guesswork.
+Exec=kitty -e nvim %F
+TryExec=kitty
+Terminal=false
+StartupNotify=false
+
+# Hidden from the launcher on purpose: the stock nvim.desktop already covers
+# "start Neovim". This entry exists only to be a file-open handler, and two
+# Neovim rows in the spotlight would be noise.
+NoDisplay=true
+
+Icon=nvim
+Categories=Utility;TextEditor;Development;
+MimeType=text/plain;text/markdown;text/x-cmake;application/json;application/x-yaml;application/x-docbook+xml;text/x-c;text/x-c++;text/x-csrc;text/x-c++src;text/x-chdr;text/x-c++hdr;text/x-python;text/x-java;text/x-rust;text/x-go;text/x-lua;text/x-sql;text/x-makefile;text/x-shellscript;application/x-shellscript;application/x-sh;text/css;text/csv;application/xml;text/xml;application/toml;

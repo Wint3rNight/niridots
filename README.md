@@ -59,6 +59,12 @@ Doing it by hand instead:
 - `.config/spicetify/` — Spotify theming. `Themes/Cathedral/` is hand-written and
   vendored; SpicetifyCat (17 MB upstream clone) is fetched by `bootstrap.sh`.
 - `.config/wireplumber/` — one audio routing rule, see Notes.
+- `system/` — the few files that live outside `$HOME`, mirroring their real paths
+  (`etc/`, `usr/local/bin/`). Installed by `bootstrap.sh` step 8, which needs sudo
+  and skips itself rather than prompting if it does not have it.
+- `applications/` — `.desktop` entries for `~/.local/share/applications`. Currently
+  the nvim-in-kitty file-open handler; `bootstrap.sh` step 9 installs it and points
+  the MIME defaults at it.
 - `pkglist.txt` — every explicitly installed package on the box.
 - `dms-plugins.txt` — DMS plugin IDs. The plugins themselves are git clones
   (~21 MB) so they are gitignored; `bootstrap.sh` reinstalls them by ID.
@@ -96,3 +102,25 @@ Doing it by hand instead:
   default sink. Remove that file if you ever want to pin Spotify to its own device.
 - `.config/waybar` and `.config/swaync` are the pre-DMS bar and notification
   daemon. Retired but kept as a fallback.
+- **`Mod+Shift+S` used to be dead.** It called `dms ipc call quickCapture ...`,
+  which is not a DMS IPC target — `dms ipc call quickCapture fromClipboard edit`
+  answers `Target not found`, so the key silently did nothing. It now opens
+  spotlight directly in file-search mode. Spotlight takes a mode argument
+  (`toggleWith files|apps|all|plugins|calc|clipboard`), which is also how
+  `Mod+Shift+V` — previously a duplicate of `Mod+N` — became clipboard history.
+- **Power profiles switch themselves now.** power-profiles-daemon only exposes
+  the profiles; nothing was choosing between them, so the machine sat on
+  `power-saver` while plugged into an RTX 3050 laptop. `system/` adds a oneshot
+  unit plus a udev rule on the `ACAD` power supply: **balanced on AC,
+  power-saver on battery**, applied at boot and on every plug/unplug. A manual
+  override with `Mod+Shift+U` holds until the next AC event. Change the one word
+  in `power-profile-auto` if you want `performance` on AC instead.
+- **Night light is deliberately manual.** `Mod+Shift+M` toggles it;
+  `dms ipc call night getSchedule` reports `Automation disabled` and nothing
+  here turns that on.
+- **Opening a file from spotlight needs a working MIME handler.** The handler is
+  `applications/nvim-kitty.desktop`, installed by `bootstrap.sh` step 9 along with
+  the MIME defaults that point at it. It sets `Terminal=false` and calls
+  `kitty -e nvim` explicitly, because `Terminal=true` entries make xdg-open and
+  GLib search a hardcoded terminal list that does not contain kitty — on this
+  machine the only match is konsole, so text files opened there instead.

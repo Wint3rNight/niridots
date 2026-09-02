@@ -337,14 +337,33 @@ binds {
     Mod+Ctrl+T       { spawn "bash" "-c" "~/.config/niri/theme-cycle.sh next"; }
     Mod+Ctrl+Shift+T { spawn "bash" "-c" "~/.config/niri/theme-cycle.sh reset"; }
     Mod+Shift+B { spawn "bash" "-c" "~/.config/niri/dms-bar-frame-toggle.sh"; }
-    Mod+Shift+S { spawn "dms" "ipc" "call" "quickCapture" "fromClipboard" "edit"; }
+    // Was `quickCapture fromClipboard edit` - that IPC target does not exist in DMS
+    // (`dms ipc call quickCapture ...` answers "Target not found"), so this key did
+    // nothing at all. Spotlight takes a mode argument, so it now opens straight into
+    // file search instead of making you open it and switch modes by hand.
+    Mod+Shift+S { spawn "dms" "ipc" "call" "spotlight" "toggleWith" "files"; }
     Mod+Shift+C { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh configs"; }
     Mod+X { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
     // Lock now (qylock / quickshell). Theme: ~/.config/qylock/theme
     Mod+Shift+X { spawn "bash" "-c" "$HOME/Projects/qylock/quickshell-lockscreen/lock.sh"; }
     Mod+N { spawn "dms" "ipc" "call" "control-center" "toggle"; }
     Mod+Shift+N { spawn "dms" "ipc" "call" "notifications" "toggle"; }
-    Mod+Shift+V { spawn "dms" "ipc" "call" "control-center" "toggle"; }
+    // Mod+Shift+V used to be a second copy of Mod+N (control-center). Reclaimed for the
+    // clipboard history, where Ctrl-V muscle memory actually points.
+    Mod+Shift+V { spawn "dms" "ipc" "call" "spotlight" "toggleWith" "clipboard"; }
+
+    // --- System toggles -----------------------------------------------------
+    // All of these are DMS IPC targets that were installed but unbound.
+    Mod+Shift+A { spawn "dms" "ipc" "call" "audio" "cycleoutput"; }              // speakers <-> JBL
+    Mod+Shift+O { spawn "dms" "ipc" "call" "settings" "focusOrToggle"; }         // DMS settings (Options)
+    Mod+Shift+I { spawn "dms" "ipc" "call" "inhibit" "toggle"; }                 // keep awake through a long build
+    // Night light stays fully manual: `night getSchedule` reports "Automation disabled"
+    // and this binding does not change that. It only flips the filter on and off now.
+    Mod+Shift+M { spawn "dms" "ipc" "call" "night" "toggle"; }                   // Moon
+    Mod+Shift+Z { spawn "dms" "ipc" "call" "notifications" "toggleDoNotDisturb"; } // Zzz
+    Mod+Shift+U { spawn "dms" "ipc" "call" "powerprofile" "cycle"; }             // power-saver/balanced/performance
+    Mod+Ctrl+R { spawn "dms" "ipc" "call" "workspace-rename" "toggle"; }
+    Mod+Ctrl+W { spawn "dms" "ipc" "call" "window-rules" "toggle"; }             // rules for the focused window
 
     Mod+R { switch-preset-column-width; }
     Mod+Shift+R { reset-window-height; }

@@ -417,7 +417,8 @@ On/off things live in one place. `Space o b` transparent background (remembered)
 `Space o h` inlay hints. `Space o d` diagnostics. `Space o f` save-formatting.
 `Space o m` markdown rendering. `Space o s` spell check. `Space o w` line wrap.
 `Space o z` zen mode (one centred window, nothing else). `Space o D` dims every
-block except the one you are in. `Space o q` opens the database sidebar (3.18).
+block except the one you are in. `Space o c` the sticky context header (3.22).
+`Space o q` opens the database sidebar (3.18).
 
 ### 3.17 Windows and buffers
 
@@ -464,6 +465,92 @@ complete as you type. This needs the `psql` client on the machine
 
 Django templates (`.html` files with `{% %}` in them) get their own highlighting and
 a formatter (djlint); plain SQL files get sql-formatter. Both run on save like the rest.
+
+---
+
+### 3.19 Testing an endpoint without leaving the editor
+
+The situation: your Django or FastAPI server is running and you want to hit it with a
+POST, but you do not want to go and find a browser or write a curl command by hand.
+
+Make a file ending in `.http` anywhere in the repo. It is plain text and it belongs in
+git next to the code it exercises:
+
+```
+@base = http://127.0.0.1:8000
+
+### create a user
+POST {{base}}/api/users/
+Content-Type: application/json
+
+{ "name": "winter" }
+
+### list them back
+GET {{base}}/api/users/
+```
+
+`###` separates requests. Put the cursor inside one and press `Space h s` — it runs and
+the response opens in a split beside it. `Space h a` runs every request in the file,
+`Space h r` replays the last one, `Space h n` / `Space h p` step between them,
+`Space h t` flips between the body and the headers, `Space h q` closes the pane.
+
+`Space h c` copies the request as a curl command (for pasting into a bug report), and
+`Space h i` does the reverse — turns a curl command on your clipboard into a request block.
+
+If a Django view raises, the 500 page comes back as HTML and is formatted so you can
+actually read the traceback rather than getting one enormous line.
+
+Different environments (dev vs staging) go in `http-client.env.json` in the repo root;
+`Space h e` picks which set of variables is active.
+
+---
+
+### 3.20 Changing the same thing in many places at once
+
+The situation: the same identifier appears eight times in this function and you want to
+change all eight — but `Space r n` (rename) is wrong because it is not a symbol, it is a
+string, or a comment, or you only want *some* of them.
+
+Put the cursor on the word and press `Alt-n`. That leaves a cursor there and jumps to the
+next occurrence with a cursor too. Keep pressing `Alt-n` to collect more. `Alt-Shift-n`
+skips the one you are on. `Alt-Ctrl-n` grabs every occurrence in the file at once.
+
+Now type. Every cursor does the same thing — `ciwNewName<Esc>` changes all of them.
+
+`Alt-Ctrl-Up` / `Alt-Ctrl-Down` add a cursor straight up or down instead, for editing a
+column of lines. While cursors are alive, `Left` / `Right` step between them and `Ctrl-x`
+drops the one you are on. **`Esc` clears them all** and gives your keys back.
+
+This is the tool for "change these five, not those three". For genuine renames of a
+variable or function, `Space r n` is still correct — it understands scope, this does not.
+
+---
+
+### 3.21 Five more operators worth knowing
+
+These take a motion or a text object, the same way `d` and `c` do.
+
+| Keys | What it does |
+|---|---|
+| `gS` | Toggle the thing under the cursor between one line and many. On a long argument list, a `VkCreateInfo` brace block, or a CMake call, this is the whole edit. |
+| `gX` | Exchange. `gXiw` on one word, then `gXiw` on another, and they swap. The fastest way to reorder two function arguments. |
+| `gY` | Replace a region with what you last yanked, **without** clobbering the register — so you can do it repeatedly. `gYiw` pastes over a word. |
+| `gZ` | Sort a region. `gZia` sorts an argument list, `gZip` a paragraph, `gZ` in visual mode the selection. Good for `#include` blocks. |
+| `gA` | Duplicate a region below. `gAap` copies the paragraph. |
+
+These letters are not the plugin's defaults. The usual ones (`gx`, `gr`, `gs`, `gm`) are
+already taken here by open-URL, the LSP menu, surround, and a built-in motion, so they
+were moved rather than allowed to collide.
+
+### 3.22 Knowing where you are in a long file
+
+When you scroll deep into a function, the signature scrolls off the top and you lose
+track of which overload you are actually inside. A small header now pins the enclosing
+function, class or namespace to the top of the window. It appears on its own; there is
+nothing to press.
+
+`[C` jumps up to the context line itself, which is a quick way back to a signature.
+`Space o c` turns the header off if it is in the way.
 
 ## Part 4 — Workflow tips and tricks
 
@@ -547,6 +634,8 @@ a formatter (djlint); plain SQL files get sql-formatter. Both run on save like t
 | `>` `<` (visual) | Indent / dedent |
 | `gcc` / `gc` | Comment line / selection |
 | `Space p` (visual) | Paste over selection, keep clipboard |
+| `Alt-n` | Add a cursor at the next occurrence (then just type — 3.20) |
+| `gS` | Split / join the argument list under the cursor (3.21) |
 | `Alt-Up` / `Alt-Down` | Move line or selection |
 | `Shift-h` / `Shift-l` | Previous / next buffer |
 | `Space s v`, `Space s x` | Split vertically, close split |
@@ -598,6 +687,10 @@ a formatter (djlint); plain SQL files get sql-formatter. Both run on save like t
 | `Space f D`, `Space f T` | Buffer diagnostics, only TODO/FIX |
 | `gD`, `gri`, `grt`, `gO` | Declaration, implementations, type definition, outline |
 | `Space x X`, `Space x S`, `Space x l`, `Space x t` | Buffer diagnostics, LSP panel, location list, TODOs panel |
+| `Space h s`, `Space h a`, `Space h e` | Send the HTTP request under the cursor, send all, pick environment (3.19) |
+| `gX`, `gY`, `gZ`, `gA` | Exchange, replace-with-register, sort, duplicate (3.21) |
+| `Alt-Ctrl-n`, `Alt-Ctrl-Up/Down` | Cursor on every match; add a cursor above / below (3.20) |
+| `[C` | Jump up to the enclosing function signature (3.22) |
 | `Space d B`, `Space d C`, `Space d l`, `Space d r`, `Space d h` | Conditional breakpoint, run to cursor, re-run, REPL, hover value |
 | `Space m d`, `Space m S`, `Space m t`, `Space m c`, `Space m k`, `Space m M` | CMake debug, launch target, build type, clean; run any task, re-run last |
 | `Space t R`, `Space t a`, `Space t d`, `Space t S`, `Space t O` | Tests: file, all, debug, stop, output panel |
@@ -660,8 +753,9 @@ that week.
 - `plugins/snacks.lua` — the picker (assistant), notifications, big-file guard, `Space o` toggles, buffer delete, open-on-GitHub.
 - `plugins/completion.lua` — blink.cmp completion, friendly-snippets, lazydev (Lua docs for the config itself).
 - `plugins/lsp.lua` — Mason (installs tools) + clangd (system 22.1.8), rust-analyzer (rustup), lua_ls, glsl_analyzer, basedpyright + ruff (Python), clangd extras.
-- `plugins/treesitter.lua` — syntax highlighting, indentation, folds; `]f`-style motions; language-aware comments.
-- `plugins/editing.lua` — flash, mini.ai / mini.surround / mini.pairs, TODO comments, Trouble panels, editable quickfix, grug-far.
+- `plugins/treesitter.lua` — syntax highlighting, indentation, folds; `]f`-style motions; language-aware comments; the sticky context header (3.22).
+- `plugins/editing.lua` — flash, mini.ai / mini.surround / mini.pairs / mini.splitjoin / mini.operators (3.21), multiple cursors (3.20), TODO comments, Trouble panels, editable quickfix, grug-far.
+- `plugins/http.lua` — kulala, the `.http` client for poking Django / FastAPI endpoints (3.19).
 - `plugins/explorer.lua` — the tree (nvim-tree) and oil.
 - `plugins/build.lua` — overseer (`:Make`, task list), cmake-tools, neotest with the ctest and python (pytest) adapters.
 - `plugins/debugging.lua` — nvim-dap with gdb and codelldb (C/C++/CUDA/Rust) and debugpy (Python, with Django / FastAPI / pytest launch entries), the debug UI, inline values.

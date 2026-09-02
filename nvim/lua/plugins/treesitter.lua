@@ -91,4 +91,24 @@ return {
 
   -- Correct comment strings per treesitter node (native gc/gcc do the commenting)
   { "folke/ts-comments.nvim", event = "VeryLazy", opts = {} },
+
+  -- Sticky header: pins the enclosing function/class/namespace to the top of the window
+  -- while you scroll inside it. The payoff is deep C++/CUDA bodies where the signature
+  -- has long since scrolled away - you can see which overload you are actually in.
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    opts = {
+      max_lines = 4,        -- a whole 8-line template signature would eat the window
+      multiline_threshold = 2,
+      trim_scope = "outer", -- when over budget, drop the outermost scope, keep the innermost
+      separator = "─",
+    },
+    keys = {
+      -- Jump to the context line itself - handy for getting back to a function signature
+      { "[C", function() require("treesitter-context").go_to_context(vim.v.count1) end, desc = "Jump to enclosing context" },
+      { "<leader>oc", "<cmd>TSContextToggle<cr>", desc = "Context header" },
+    },
+  },
 }

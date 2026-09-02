@@ -41,7 +41,18 @@ return {
       },
     },
     config = function()
-      -- Advertise blink's completion capabilities to every server
+      -- Advertise blink's completion capabilities to every server.
+      --
+      -- This require() pulls blink in at startup even though its spec says
+      -- event = InsertEnter (lazy.nvim hooks require and loads the plugin). That is
+      -- deliberate and load-bearing, not an oversight: capabilities must be registered
+      -- before the first server attaches, and servers attach on FileType - long before
+      -- anyone enters insert mode. Registering late would silently downgrade completion.
+      --
+      -- Neovim 0.11's own make_client_capabilities() is close but not equivalent; blink
+      -- additionally asks for `commitCharacters` in completionList.itemDefaults, `data` in
+      -- completionItem.resolveSupport, and insertTextMode = 1. Dropping the call to save
+      -- the ~5 ms would quietly cost lazy documentation resolution.
       local ok, blink = pcall(require, "blink.cmp")
       if ok then vim.lsp.config("*", { capabilities = blink.get_lsp_capabilities() }) end
 

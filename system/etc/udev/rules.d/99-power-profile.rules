@@ -1,0 +1,4 @@
+# Re-evaluate the power profile whenever the AC adapter is plugged in or pulled out.
+# The work happens in a systemd unit rather than RUN+= directly, because the script talks
+# to power-profiles-daemon over D-Bus and udev RUN+= must stay short and non-blocking.
+SUBSYSTEM=="power_supply", KERNEL=="ACAD", ACTION=="change", RUN+="/usr/bin/systemctl --no-block restart power-profile-auto.service"

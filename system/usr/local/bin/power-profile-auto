@@ -1,0 +1,21 @@
+#!/bin/sh
+# Match the power profile to the AC adapter state.
+#
+# power-profiles-daemon does not do this on its own - it only exposes the profiles and
+# waits to be told. Without this the machine keeps whatever profile it was last set to,
+# which is how it ended up sitting on power-saver while plugged in on an RTX 3050 laptop.
+#
+# Called at boot (WantedBy=multi-user.target) and on every AC plug/unplug via
+# /etc/udev/rules.d/99-power-profile.rules.
+#
+# On AC this picks `balanced`, not `performance`: performance pins the CPU governor and
+# costs real battery life if the adapter is ever pulled without a re-trigger. Change the
+# one word below if you want the machine to lean harder while plugged in.
+
+AC=/sys/class/power_supply/ACAD/online
+
+if [ "$(cat "$AC" 2>/dev/null)" = "1" ]; then
+    exec powerprofilesctl set balanced
+else
+    exec powerprofilesctl set power-saver
+fi

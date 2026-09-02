@@ -126,7 +126,54 @@ if command -v spicetify >/dev/null; then
 fi
 
 # ---------------------------------------------------------------------------
-# 8. fonts
+# 8. power profile automation - needs root, so it is opt-in rather than silent.
+#    power-profiles-daemon exposes the profiles but never switches between them
+#    on its own; without this the machine keeps whatever profile it last had,
+#    which is how it ended up on power-saver while plugged in.
+#    Sets balanced on AC and power-saver on battery, at boot and on every
+#    plug/unplug. Manual overrides (Mod+Shift+U) last until the next AC event.
+# ---------------------------------------------------------------------------
+if [ -d "$REPO/system" ] && command -v powerprofilesctl >/dev/null; then
+    if [ "$(id -u)" = "0" ] || sudo -n true 2>/dev/null; then
+        say "Installing power profile automation"
+        sudo install -m755 "$REPO/system/usr/local/bin/power-profile-auto" /usr/local/bin/
+        sudo install -m644 "$REPO/system/etc/systemd/system/power-profile-auto.service" /etc/systemd/system/
+        sudo install -m644 "$REPO/system/etc/udev/rules.d/99-power-profile.rules" /etc/udev/rules.d/
+        sudo systemctl daemon-reload
+        sudo systemctl enable --now power-profile-auto.service >/dev/null 2>&1
+        sudo udevadm control --reload-rules
+        echo "    profile now: $(powerprofilesctl get)"
+    else
+        echo "    skipped power profile automation (needs sudo); run scripts/bootstrap.sh again with sudo available"
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# 9. file-open handler. Without this, clicking a file in the DMS spotlight does
+#    nothing at all: Quickshell calls Qt.openUrlExternally -> xdg-open, and
+#    xdg-open in "generic DE" mode gives up silently when the handler in
+#    mimeapps.list does not resolve. Terminal=true entries are not a fix - both
+#    xdg-open and GLib resolve those against a hardcoded terminal list that has
+#    no kitty in it, so files land in konsole instead.
+# ---------------------------------------------------------------------------
+if [ -d "$REPO/applications" ]; then
+    say "Installing file-open handler (nvim in kitty)"
+    mkdir -p "$HOME/.local/share/applications"
+    cp "$REPO"/applications/*.desktop "$HOME/.local/share/applications/"
+    update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
+    if command -v xdg-mime >/dev/null; then
+        xdg-mime default nvim-kitty.desktop \
+            text/plain text/markdown text/x-cmake application/json application/x-yaml \
+            application/x-docbook+xml text/x-c text/x-c++ text/x-csrc text/x-c++src \
+            text/x-chdr text/x-c++hdr text/x-python text/x-java text/x-rust text/x-go \
+            text/x-lua text/x-sql text/x-makefile text/x-shellscript application/x-shellscript \
+            application/x-sh text/css text/csv application/xml text/xml application/toml \
+            2>/dev/null && echo "    text and source files now open in nvim"
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# 10. fonts
 # ---------------------------------------------------------------------------
 if [ -d "$REPO/fonts" ]; then
     say "Installing fonts"

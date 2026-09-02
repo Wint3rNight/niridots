@@ -1,30 +1,28 @@
 return {
   -- Harpoon: Quick jumping between files
+  -- keys = lazy-loads on first use. Without it this plugin loaded during startup,
+  -- because lazy.setup sets defaults.lazy = false for anything with no trigger.
   {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
     dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      local harpoon = require("harpoon")
-      harpoon:setup()
-
-      -- Keymaps
-      vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end, { desc = "Harpoon: Add file" })
-      vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Harpoon: Open menu" })
-
-      -- Jump to files 1-4
-      vim.keymap.set("n", "<C-h>", function() harpoon:list():select(1) end)
-      vim.keymap.set("n", "<C-t>", function() harpoon:list():select(2) end)
-      vim.keymap.set("n", "<C-n>", function() harpoon:list():select(3) end)
-      vim.keymap.set("n", "<C-s>", function() harpoon:list():select(4) end)
-    end,
+    keys = {
+      { "<leader>a", function() require("harpoon"):list():add() end, desc = "Harpoon: add file" },
+      { "<C-e>", function() local h = require("harpoon") h.ui:toggle_quick_menu(h:list()) end, desc = "Harpoon: menu" },
+      { "<C-h>", function() require("harpoon"):list():select(1) end, desc = "Harpoon: file 1" },
+      { "<C-t>", function() require("harpoon"):list():select(2) end, desc = "Harpoon: file 2" },
+      { "<C-n>", function() require("harpoon"):list():select(3) end, desc = "Harpoon: file 3" },
+      { "<C-s>", function() require("harpoon"):list():select(4) end, desc = "Harpoon: file 4" },
+    },
+    config = function() require("harpoon"):setup() end,
   },
 
   -- Undotree: Visual undo history
   {
     "mbbill/undotree",
-    config = function()
-      vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "Toggle Undotree" })
-    end,
+    cmd = { "UndotreeToggle", "UndotreeShow", "UndotreeFocus" },
+    keys = {
+      { "<leader>u", vim.cmd.UndotreeToggle, desc = "Toggle Undotree" },
+    },
   },
 }

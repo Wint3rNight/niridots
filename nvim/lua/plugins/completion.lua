@@ -3,6 +3,9 @@ return {
   {
     "saghen/blink.cmp",
     version = "1.*",
+    -- In practice this loads during startup, not on InsertEnter: plugins/lsp.lua requires
+    -- blink to register LSP capabilities before the first server attaches (see the comment
+    -- there). The event is kept as a floor for the case where lspconfig is disabled.
     event = { "InsertEnter", "CmdlineEnter" },
     dependencies = { "rafamadriz/friendly-snippets", "folke/lazydev.nvim" },
     opts = {
