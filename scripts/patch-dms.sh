@@ -1,44 +1,48 @@
 #!/usr/bin/env bash
-# Patch two hardcoded behaviours in DankMaterialShell's media panel.
+# Patch one hardcoded behaviour in DankMaterialShell's media panel.
 #
-# These edit files owned by the `dms-shell` package, so **a DMS update silently reverts
-# them**. Re-run this script after upgrading. It is idempotent: it checks for its own
-# marker and does nothing if the patch is already in place.
+# Selecting a different player in the media dropdown pauses the one you switched away
+# from: DankDashPopout.qml's onPlayerSelected calls currentPlayer.pause() before
+# switching. There is no setting for it. This removes the pause.
 #
-#   1. Selecting a different player in the media dropdown pauses the one you switched
-#      away from. DankDashPopout.qml's onPlayerSelected calls currentPlayer.pause()
-#      before switching. There is no setting for it. Patch removes the pause.
+# This edits a file owned by the `dms-shell` package, so **a DMS update silently reverts
+# it**. Re-run after upgrading. Idempotent: checks for its own marker and does nothing if
+# already applied. Restart the shell afterwards (`dms restart`) - quickshell holds the
+# QML in memory, so an unrestarted shell keeps the old behaviour.
 #
-#   2. The device list in the media dropdown calls
-#      AudioService.setDefaultSinkByName(), which changes the *default sink* - so it
-#      moves every unpinned stream, not the player you have selected. Patch routes it
-#      through media-move-output.sh, which moves only that player's PipeWire stream and
-#      lets WirePlumber pin it. It falls back to the original default-sink behaviour when
-#      no player is active, so the device list still works with nothing playing.
-#
-# Upstream would be the better fix for both; this is the local stopgap.
+# NOT patched, deliberately: the device list in that same panel calls
+# AudioService.setDefaultSinkByName(), i.e. it changes the *default sink* rather than
+# moving the selected player. Making it per-player needed a second patch plus a helper to
+# resolve MPRIS players to PipeWire streams, and it only ever covered apps with an MPRIS
+# interface. Mod+Shift+Y (.config/niri/audio-output.sh) does per-app routing over raw
+# PipeWire streams instead - it covers everything, including mpv and games, and survives
+# DMS upgrades because it touches no package files.
 
 set -euo pipefail
 
 DMS=${DMS_ROOT:-/usr/share/quickshell/dms}
-HELPER="$HOME/.config/niri/media-move-output.sh"
 MARKER="// dotfiles-patch"
+POPOUT="$DMS/Modules/DankDash/DankDashPopout.qml"
 
 say() { printf '  %s\n' "$*"; }
 
-[ -d "$DMS" ] || { echo "DMS not found at $DMS" >&2; exit 1; }
-[ -x "$HELPER" ] || { echo "missing $HELPER" >&2; exit 1; }
+[ -f "$POPOUT" ] || { echo "not found: $POPOUT" >&2; exit 1; }
 
 SUDO=""
-[ -w "$DMS/Modules/DankDash/DankDashPopout.qml" ] || SUDO="sudo"
+[ -w "$POPOUT" ] || SUDO="sudo"
 
-# --- 1. stop pausing the player you switch away from -------------------------
-POPOUT="$DMS/Modules/DankDash/DankDashPopout.qml"
 if grep -q "$MARKER no-pause" "$POPOUT"; then
     say "no-pause: already patched"
-elif grep -q "currentPlayer.pause();" "$POPOUT"; then
-    $SUDO python3 - "$POPOUT" "$MARKER" <<'PY'
-import re, sys
+    exit 0
+fi
+
+if ! grep -q "currentPlayer.pause();" "$POPOUT"; then
+    say "no-pause: anchor missing - upstream changed, patch by hand"
+    exit 1
+fi
+
+$SUDO python3 - "$POPOUT" "$MARKER" <<'PY'
+import sys
 path, marker = sys.argv[1], sys.argv[2]
 src = open(path).read()
 old = """            onPlayerSelected: player => {
@@ -54,40 +58,6 @@ if old not in src:
     sys.exit("no-pause: anchor not found, upstream changed - patch by hand")
 open(path, "w").write(src.replace(old, new))
 PY
-    say "no-pause: applied"
-else
-    say "no-pause: anchor missing (upstream changed?) - skipped"
-fi
 
-# --- 2. device list moves only the selected player ---------------------------
-OVERLAY="$DMS/Modules/DankDash/MediaDropdownOverlay.qml"
-if grep -q "$MARKER per-player-sink" "$OVERLAY"; then
-    say "per-player-sink: already patched"
-elif grep -q "AudioService.setDefaultSinkByName(modelData.name);" "$OVERLAY"; then
-    $SUDO python3 - "$OVERLAY" "$MARKER" "$HELPER" <<'PY'
-import sys
-path, marker, helper = sys.argv[1], sys.argv[2], sys.argv[3]
-src = open(path).read()
-
-if "\nimport Quickshell\n" not in src:
-    src = src.replace("import QtQuick\n", "import QtQuick\nimport Quickshell\n", 1)
-
-old = "                                        AudioService.setDefaultSinkByName(modelData.name);"
-new = f"""                                        {marker} per-player-sink: upstream sets the
-                                        // default sink here, which moves every unpinned
-                                        // stream. Move just the selected player instead.
-                                        if (root.activePlayer && root.activePlayer.dbusName) {{
-                                            Quickshell.execDetached(["{helper}", root.activePlayer.dbusName, modelData.name]);
-                                        }} else {{
-                                            AudioService.setDefaultSinkByName(modelData.name);
-                                        }}"""
-if old not in src:
-    sys.exit("per-player-sink: anchor not found, upstream changed - patch by hand")
-open(path, "w").write(src.replace(old, new))
-PY
-    say "per-player-sink: applied"
-else
-    say "per-player-sink: anchor missing (upstream changed?) - skipped"
-fi
-
-say "restart the shell to pick the changes up:  dms restart   (or log out/in)"
+say "no-pause: applied"
+say "restart the shell to pick it up:  dms restart"

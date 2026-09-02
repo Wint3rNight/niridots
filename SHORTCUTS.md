@@ -176,13 +176,10 @@ out to `fd --type f . $HOME` on every press — re-walking the whole home direct
 no index — and then opened the result with `xdg-open`. Spotlight's file mode uses the
 dsearch index instead. `rofi-find.sh` and its `find)` case in `rofi-toggle.sh` are gone.
 
-**Three layers of audio routing**, because they do different jobs:
+**Two layers of audio routing**, because they do different jobs:
 
 - `Mod+Shift+A` — **system-wide** toggle. Changes the default sink, so every stream
   *without its own pin* follows. This is the "move everything to my headphones" key.
-- **The DMS media panel** (`Mod+M`) — per-player, once `scripts/patch-dms.sh` is applied.
-  Select a player, pick a device, and only that player moves. Needs MPRIS, so it sees
-  Spotify, Zen/Firefox, VLC and haruna — but not mpv unless `mpv-mpris` is installed.
 - `Mod+Shift+Y` — per-app picker over raw PipeWire streams
   (`.config/niri/audio-output.sh`). Sees everything that makes noise, MPRIS or not.
 
