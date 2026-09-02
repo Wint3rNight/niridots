@@ -27,7 +27,11 @@ layout {
 
     tab name="Dev Hub" {
         pane split_direction="vertical" {
-            pane name="Git" size="50%"
+            // lazygit needs a repo as its cwd. The dashboard is launched from
+            // niri with no meaningful working directory, so without cwd this
+            // pane died with "not a git repository" - which is why it was left
+            // as a bare shell that only had the name "Git".
+            pane command="lazygit" cwd="/home/winter/dotfiles" size="50%"
             pane command="gh" size="50%" {
                 args "dash"
             }
