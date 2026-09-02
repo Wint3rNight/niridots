@@ -105,12 +105,20 @@ Inside spotlight: `Ctrl+J` / `Ctrl+K` or `Ctrl+N` / `Ctrl+P` move the selection,
 
 ## Screenshots and media
 
+All captures go through the DMS **quickCapture** plugin — niri's built-in screenshot
+actions and the old slurp/grim/swappy script are gone. `copyAndSave` puts the image on
+the clipboard *and* writes it to `~/Pictures/Screenshots`, which is what the old keys
+did; `edit` opens the annotation editor instead, which is what swappy did.
+
 | Key | Does |
 |---|---|
-| `Print` | Screenshot (select) |
-| `Ctrl+Print` | Whole screen |
-| `Alt+Print` | Focused window |
-| `Mod+Print` | Area, via script |
+| `Print` | Region select → clipboard + file |
+| `Ctrl+Print` | Whole screen → clipboard + file |
+| `Alt+Print` | Focused window → clipboard + file |
+| `Mod+Print` | **Scrolling capture** — pick a region, scroll, get one tall stitched image → annotate |
+| `Mod+Shift+Print` | Region → **annotate** (plain `Print` already covers region-to-clipboard) |
+| `Mod+I` | Annotate the image already on the clipboard |
+| `Mod+U` | Capture history |
 | `F2` / `F3` | Volume down / up |
 | `F6` / `F7` | Brightness down / up |
 | Media keys | Play-pause, next, previous, mute, mic-mute — all work while locked |
@@ -151,14 +159,30 @@ qylock theme, so it matches. qylock proper only runs for locking.
 **`Mod+Shift+E` quits niri** and is one Shift away from `Mod+E` (yazi). Left as-is
 because it is the niri default, but it is the one dangerous key on this list.
 
-**Free keys**, if you want to bind something: `Mod+I`, `Mod+U`, `Mod+Shift+Q`,
-`Mod+Shift+S`, `Mod+Shift+Y`.
+**Free keys**, if you want to bind something: `Mod+Shift+Q`, `Mod+Shift+S`,
+`Mod+Shift+Y`.
+
+**quickCapture was installed but disabled**, which is the whole reason the original
+`Mod+Shift+S` → `quickCapture fromClipboard edit` did nothing: the binding was correct,
+the plugin was off, so the IPC target did not exist. Enabling it also lit up the
+`quickCapture` widget that had been sitting inert in the bar's `rightWidgets`.
+Modes are `region window full output all last scroll`; actions are
+`copy save copyAndSave float`, and anything else (we pass `edit`) opens the annotator.
+Neither is validated by the IPC — a wrong value fails silently.
 
 `Mod+S` was a rofi file search before it was a spotlight one. The rofi version shelled
 out to `fd --type f . $HOME` on every press — re-walking the whole home directory with
 no index — and then opened the result with `xdg-open`. Spotlight's file mode uses the
 dsearch index instead. `rofi-find.sh` and its `find)` case in `rofi-toggle.sh` are gone.
 
-**Unbound DMS IPC targets** worth knowing about — see `dms ipc` for the full surface:
-`systemupdater`, `dock`, `sessions`, `color-picker`, `theme` (light/dark),
-`desktopWidget`, `outputs` (display profiles), `tray`, `mpris`.
+**Unbound DMS IPC targets** — see `dms ipc` for the full surface. Checked and not worth
+binding here: `systemupdater` (answers "no package manager available"), `outputs`
+(single display, "No profiles configured"), `dock` (`showDock` is false), `mpris` and
+`color-picker` (hardware media keys and `Mod+P`/hyprpicker already cover them),
+`theme` (`Mod+Ctrl+T` cycles themes already). Still possibly useful: `sessions`,
+`tray`, `desktopWidget`, `bar toggleAutoHide`.
+
+**Disabled DMS plugins** (`dms ipc call plugins list`) — `calculator`, `webSearch`,
+`aiAssistant`, `dmsAgent`, `sathiAi`. `calculator` and `webSearch` would fold `Mod+A`
+and the rofi web-search into spotlight if you ever want to drop those rofi paths the
+way `rofi-find.sh` went.

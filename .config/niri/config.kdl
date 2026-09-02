@@ -357,9 +357,10 @@ binds {
     Mod+Ctrl+T       { spawn "bash" "-c" "~/.config/niri/theme-cycle.sh next"; }
     Mod+Ctrl+Shift+T { spawn "bash" "-c" "~/.config/niri/theme-cycle.sh reset"; }
     Mod+Shift+B { spawn "bash" "-c" "~/.config/niri/dms-bar-frame-toggle.sh"; }
-    // Mod+Shift+S is free. It used to call `quickCapture fromClipboard edit`, which is
-    // not a DMS IPC target at all (`dms ipc call quickCapture ...` answers "Target not
-    // found"), so the key silently did nothing. File search now lives on Mod+S.
+    // Mod+Shift+S is free. It used to call `quickCapture fromClipboard edit` and did
+    // nothing - not because the binding was wrong, but because the quickCapture plugin
+    // was disabled, so the IPC target did not exist. The plugin is enabled now and that
+    // exact command lives on Mod+I. File search moved to Mod+S.
     Mod+Shift+C { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh configs"; }
     Mod+X { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
     // Lock now (qylock / quickshell). Theme: ~/.config/qylock/theme
@@ -390,6 +391,10 @@ binds {
     Mod+Shift+U { spawn "dms" "ipc" "call" "powerprofile" "cycle"; }             // power-saver/balanced/performance
     Mod+Ctrl+R { spawn "dms" "ipc" "call" "workspace-rename" "toggle"; }
     Mod+Ctrl+W { spawn "dms" "ipc" "call" "window-rules" "toggle"; }             // rules for the focused window
+    // Annotate whatever image is already on the clipboard - pairs with Print, which
+    // copies as well as saves, and with images copied straight out of a browser.
+    Mod+I { spawn "dms" "ipc" "call" "quickCapture" "fromClipboard" "edit"; }
+    Mod+U { spawn "dms" "ipc" "call" "quickCapture" "showHistory"; }             // past captures
 
     Mod+R { switch-preset-column-width; }
     Mod+Shift+R { reset-window-height; }
@@ -404,7 +409,9 @@ binds {
     Mod+Shift+WheelScrollUp   cooldown-ms=150 { focus-column-left; }
     Mod+Shift+WheelScrollDown cooldown-ms=150 { focus-column-right; }
 
-    Mod+Print { spawn "bash" "-c" "~/.config/niri/screenshot-area.sh"; }
+    // Scroll capture: pick a region, scroll, and it stitches one tall image.
+    // grim and slurp cannot do this at all - the one genuinely new capability here.
+    Mod+Print { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "scroll" "edit"; }
     Mod+Q { close-window; }
     Mod+Shift+Space { toggle-window-floating; }
 
@@ -483,9 +490,28 @@ binds {
     Mod+Shift+9 { move-window-to-workspace 9; }
 
     // Screenshot actions
-    Print { screenshot; }
-    Ctrl+Print { screenshot-screen; }
-    Alt+Print { screenshot-window; }
+    // Screenshots all go through the DMS quickCapture plugin now, replacing niri's
+    // built-in screenshot actions and the old slurp/grim/swappy script. The plugin was
+    // installed but *disabled*, which is why the original Mod+Shift+S binding
+    // (`quickCapture fromClipboard edit`) answered "Target not found" - the binding was
+    // right, the plugin was off. Enabling it also lit up the quickCapture widget that
+    // was already sitting in the bar's rightWidgets doing nothing.
+    //
+    // Behaviour is deliberately unchanged on the keys that had it: copyAndSave puts the
+    // image on the clipboard AND writes it to saveDirectory (default
+    // ~/Pictures/Screenshots), which is exactly what niri's screenshot actions did.
+    // `edit` opens the annotation editor instead, which is what swappy used to do.
+    //
+    // Modes: region window full output all last scroll. Actions: copy save copyAndSave
+    // float, and anything else (we use "edit") opens the annotator. Note that the IPC
+    // validates neither - a wrong value fails silently, so keep to these.
+    Print { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "region" "copyAndSave"; }
+    Ctrl+Print { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "full" "copyAndSave"; }
+    Alt+Print { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "window" "copyAndSave"; }
+    // Region, then annotate. This is what screenshot-area.sh (slurp -> grim -> swappy)
+    // used to do; quickCapture's editor replaces swappy. Plain Print already covers
+    // region-to-clipboard, so the annotating variant sits one modifier further out.
+    Mod+Shift+Print { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "region" "edit"; }
 
     // Volume control
     F2 { spawn "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && ~/.local/bin/volume-notify.sh"; }

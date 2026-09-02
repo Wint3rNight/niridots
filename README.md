@@ -70,6 +70,9 @@ Doing it by hand instead:
 - `pkglist.txt` — every explicitly installed package on the box.
 - `dms-plugins.txt` — DMS plugin IDs. The plugins themselves are git clones
   (~21 MB) so they are gitignored; `bootstrap.sh` reinstalls them by ID.
+- `dms-plugins-enabled.txt` — the subset that must also be **enabled**. `dms plugins
+  install` leaves a plugin disabled, and a disabled plugin registers no IPC target, so
+  keys bound to it fail silently. That is how quickCapture's keys were dead.
 
 ## Notes
 
@@ -104,10 +107,11 @@ Doing it by hand instead:
   default sink. Remove that file if you ever want to pin Spotify to its own device.
 - `.config/waybar` and `.config/swaync` are the pre-DMS bar and notification
   daemon. Retired but kept as a fallback.
-- **`Mod+Shift+S` used to be dead** (file search now lives on `Mod+S`, and
-  `Mod+Shift+S` is free). It called `dms ipc call quickCapture ...`,
-  which is not a DMS IPC target — `dms ipc call quickCapture fromClipboard edit`
-  answers `Target not found`, so the key silently did nothing. File search moved to
+- **`Mod+Shift+S` used to be dead**, and is now free. It called
+  `dms ipc call quickCapture fromClipboard edit`, which answered `Target not found` —
+  not because the binding was wrong but because the **quickCapture plugin was
+  disabled**, so the target did not exist. The plugin is enabled now and that exact
+  command lives on `Mod+I` (see the screenshot note below). File search moved to
   `Mod+S`, replacing a rofi picker that re-walked all of `$HOME` with `fd` on every
   press. Spotlight takes a mode argument, but only
   **`all`, `apps`, `files`, `plugins`** are real — `Controller.setMode()` does no
@@ -141,6 +145,18 @@ Doing it by hand instead:
   (`/usr/share/sddm/themes/pixel-night-city/metadata.desktop`), so the greeter and the
   lock screen match without being the same program. `theme.conf` beats
   `kde_settings.conf` (`breeze`) alphabetically in `/etc/sddm.conf.d/`.
+- **Screenshots go through the DMS quickCapture plugin**, not niri's built-in
+  screenshot actions and not the old slurp/grim/swappy script (`screenshot-area.sh`,
+  deleted). The plugin ships with DMS but was **disabled**, which is the whole reason
+  the original `Mod+Shift+S` → `quickCapture fromClipboard edit` did nothing: the
+  binding was right, the IPC target simply did not exist. Enabling it also lit up the
+  `quickCapture` widget already sitting inert in the bar's `rightWidgets`.
+  `Print` / `Ctrl+Print` / `Alt+Print` use the `copyAndSave` action, which reproduces
+  exactly what niri did (clipboard **and** `~/Pictures/Screenshots`); `Mod+Shift+Print` uses
+  `edit`, which reproduces swappy. New on top: `Mod+Print` scrolling capture
+  (grim and slurp cannot do this at all), `Mod+I` annotate-the-clipboard, `Mod+U`
+  capture history. Modes and actions are not validated by the IPC, so a typo fails
+  silently — the valid sets are in `SHORTCUTS.md`.
 - **Opening a file from spotlight needs a working MIME handler.** The handler is
   `applications/nvim-kitty.desktop`, installed by `bootstrap.sh` step 9 along with
   the MIME defaults that point at it. It sets `Terminal=false` and calls

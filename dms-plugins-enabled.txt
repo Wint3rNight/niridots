@@ -1,0 +1,14 @@
+# DMS plugins that must be ENABLED, not merely installed.
+#
+# `dms plugins install` fetches a plugin but leaves it disabled, and a disabled plugin
+# registers no IPC target at all. That is not a cosmetic difference: quickCapture was
+# installed-but-disabled here for a long time, so every `dms ipc call quickCapture ...`
+# answered "Target not found" and the keys bound to it did nothing, silently. The bar
+# widget for it was equally inert.
+#
+# Anything listed here gets `dms plugins enable <id>` run against it by bootstrap.sh.
+# Plugins in dms-plugins.txt but absent here are installed and left off on purpose.
+
+dankKDEConnect
+emojiLauncher
+quickCapture

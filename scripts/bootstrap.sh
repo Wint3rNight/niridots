@@ -76,6 +76,17 @@ if command -v dms >/dev/null && [ -f "$REPO/dms-plugins.txt" ]; then
         dms plugins install "$id" >/dev/null 2>&1 \
             && echo "    installed $id" || echo "    FAILED $id" >&2
     done < "$REPO/dms-plugins.txt"
+
+    # Installing is not enough - `dms plugins install` leaves a plugin disabled, and a
+    # disabled plugin registers no IPC target, so anything bound to it fails silently.
+    # This is exactly how quickCapture's screenshot keys were dead here for weeks.
+    if [ -f "$REPO/dms-plugins-enabled.txt" ]; then
+        while read -r id; do
+            case "$id" in ''|'#'*) continue ;; esac
+            dms ipc call plugins enable "$id" >/dev/null 2>&1 \
+                && echo "    enabled $id" || echo "    could not enable $id" >&2
+        done < "$REPO/dms-plugins-enabled.txt"
+    fi
 fi
 
 # ---------------------------------------------------------------------------
