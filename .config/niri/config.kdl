@@ -377,7 +377,12 @@ binds {
 
     // --- System toggles -----------------------------------------------------
     // All of these are DMS IPC targets that were installed but unbound.
-    Mod+Shift+A { spawn "dms" "ipc" "call" "audio" "cycleoutput"; }              // speakers <-> JBL
+    // Per-app output switcher. NOT `dms ipc call audio cycleoutput`, which only changes
+    // the default sink and therefore moves every unpinned stream at once - it cannot
+    // express "Spotify on the speaker, YouTube in my ears". DMS has no per-app routing
+    // at all, no UI and no IPC, so this drives pactl directly. The picker also has a
+    // "Default output" row that does what cycleoutput did, so nothing is lost.
+    Mod+Shift+A { spawn "bash" "-c" "~/.config/niri/audio-output.sh"; }
     Mod+Shift+O { spawn "dms" "ipc" "call" "settings" "focusOrToggle"; }         // DMS settings (Options)
     // Keep awake through a long build. Now that DMS owns the idle chain this is the
     // native toggle again: IdleService gates its own monitors on this flag

@@ -58,9 +58,9 @@ Doing it by hand instead:
 - `.config/btop`, `.config/cava`, `.config/fastfetch`, `.config/bat` — themed TUIs.
 - `.config/gtk-3.0`, `.config/gtk-4.0`, `.config/qt5ct`, `.config/qt6ct` — app theming.
 - `scripts/` — helpers that live in `~/.local/bin`, plus `bootstrap.sh`.
+- `.config/niri/audio-output.sh` — per-app audio output picker (`Mod+Shift+A`), see Notes.
 - `.config/spicetify/` — Spotify theming. `Themes/Cathedral/` is hand-written and
   vendored; SpicetifyCat (17 MB upstream clone) is fetched by `bootstrap.sh`.
-- `.config/wireplumber/` — one audio routing rule, see Notes.
 - `system/` — the few files that live outside `$HOME`, mirroring their real paths
   (`etc/`, `usr/local/bin/`). Installed by `bootstrap.sh` step 8, which needs sudo
   and skips itself rather than prompting if it does not have it.
@@ -96,15 +96,25 @@ Doing it by hand instead:
 - **The backdrop layer-rule matters.** DMS paints on a surface named
   `quickshell`; without `place-within-backdrop true` matching it, the backdrop
   is empty during workspace switches and shows as a grey band across the screen.
-- **Spotify audio output.** WirePlumber remembers a per-app output target
-  (`node.stream.restore-target` defaults to true), and a saved
-  `"target"` for Spotify overrode the default sink — so changing the output
-  device in the DMS media panel moved every app *except* Spotify. The panel only
-  sets the default sink (`Pipewire.preferredDefaultAudioSink`); it does not move
-  pinned streams. Worse, the usual workaround of moving it by hand in pavucontrol
-  re-saved the pin each time. `.config/wireplumber/wireplumber.conf.d/51-spotify-follow-default.conf`
-  sets `state.restore-target = "false"` for Spotify so it always follows the
-  default sink. Remove that file if you ever want to pin Spotify to its own device.
+- **Per-app audio routing, and a fix that was worse than the bug.** WirePlumber
+  remembers a per-app output target (`node.stream.restore-target`, on by default): move
+  an app's stream once and it is pinned there for good. That pin is what makes
+  "Spotify on the speaker, YouTube in the earphones" work at all.
+
+  A previous version of this repo shipped
+  `.config/wireplumber/wireplumber.conf.d/51-spotify-follow-default.conf`, setting
+  `state.restore-target = "false"` for Spotify so it would always follow the default
+  sink. It was meant to fix the DMS media panel being unable to move Spotify — but that
+  rule makes `state-stream.lua` skip both the restore *and* the save path, so Spotify
+  could never hold a target again, and every app ended up following the default
+  together. It destroyed exactly the per-app routing it was supposed to help.
+  **The file is deleted. Do not reintroduce it.**
+
+  The actual gap was that DMS has **no per-app routing** — no UI, no IPC.
+  `dms ipc call audio cycleoutput` and the media panel's picker both only set the
+  *default sink*. `.config/niri/audio-output.sh` (`Mod+Shift+A`) fills that in with
+  `pactl`: pick a stream, it moves to the next sink and WirePlumber pins it. The picker
+  also has a "Default output" row that does what `cycleoutput` did.
 - `.config/waybar` and `.config/swaync` are the pre-DMS bar and notification
   daemon. Retired but kept as a fallback.
 - **`Mod+Shift+S` used to be dead**, and is now free. It called

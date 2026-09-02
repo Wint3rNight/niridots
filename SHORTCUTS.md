@@ -45,7 +45,7 @@ Inside spotlight: `Ctrl+J` / `Ctrl+K` or `Ctrl+N` / `Ctrl+P` move the selection,
 
 | Key | Does |
 |---|---|
-| `Mod+Shift+A` | Cycle audio output (speakers ↔ JBL) |
+| `Mod+Shift+A` | **Per-app** audio output picker — move one app, or the default (see Notes) |
 | `Mod+Shift+U` | Cycle power profile (power-saver / balanced / performance) |
 | `Mod+Shift+M` | Night light — manual only, no schedule |
 | `Mod+Shift+Z` | Do not disturb |
@@ -174,6 +174,24 @@ Neither is validated by the IPC — a wrong value fails silently.
 out to `fd --type f . $HOME` on every press — re-walking the whole home directory with
 no index — and then opened the result with `xdg-open`. Spotlight's file mode uses the
 dsearch index instead. `rofi-find.sh` and its `find)` case in `rofi-toggle.sh` are gone.
+
+**Audio routing is per-app.** WirePlumber pins an app to whatever output you last moved
+it to (`node.stream.restore-target`), which is what lets Spotify sit on the speaker while
+YouTube plays in the earphones. DMS cannot express that — it has no per-app routing at
+all, and both `dms ipc call audio cycleoutput` and the media panel's picker only change
+the *default sink*, moving every unpinned stream together. `Mod+Shift+A` runs
+`.config/niri/audio-output.sh`, which lists the playing streams and moves the one you
+pick to the next sink; a "Default output" row does the old cycle-everything behaviour.
+
+Do **not** add a `state.restore-target = "false"` WirePlumber rule to make an app follow
+the default. It disables the save path as well as the restore path, so that app can never
+be pinned again and everything ends up glued to the default together. That rule existed
+here once and this is what it broke.
+
+**Switching player in the DMS media dropdown pauses the one you switch away from.**
+That is hardcoded upstream in `Modules/DankDash/DankDashPopout.qml` (`onPlayerSelected`
+calls `currentPlayer.pause()`), with no setting to turn it off. The cycle button in
+`MediaPlayerTab.qml` does *not* do this — it only calls `setActivePlayer`.
 
 **Unbound DMS IPC targets** — see `dms ipc` for the full surface. Checked and not worth
 binding here: `systemupdater` (answers "no package manager available"), `outputs`
