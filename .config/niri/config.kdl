@@ -377,12 +377,11 @@ binds {
 
     // --- System toggles -----------------------------------------------------
     // All of these are DMS IPC targets that were installed but unbound.
-    // Per-app output switcher. NOT `dms ipc call audio cycleoutput`, which only changes
-    // the default sink and therefore moves every unpinned stream at once - it cannot
-    // express "Spotify on the speaker, YouTube in my ears". DMS has no per-app routing
-    // at all, no UI and no IPC, so this drives pactl directly. The picker also has a
-    // "Default output" row that does what cycleoutput did, so nothing is lost.
-    Mod+Shift+A { spawn "bash" "-c" "~/.config/niri/audio-output.sh"; }
+    // System-wide output toggle: speaker <-> earphones. Changes the default sink, so
+    // every stream WITHOUT its own pin follows. Per-app routing is the patched DMS
+    // media panel's job (scripts/patch-dms.sh); Mod+Shift+Y is the fallback picker for
+    // apps with no MPRIS interface, like mpv.
+    Mod+Shift+A { spawn "dms" "ipc" "call" "audio" "cycleoutput"; }
     Mod+Shift+O { spawn "dms" "ipc" "call" "settings" "focusOrToggle"; }         // DMS settings (Options)
     // Keep awake through a long build. Now that DMS owns the idle chain this is the
     // native toggle again: IdleService gates its own monitors on this flag
@@ -400,6 +399,10 @@ binds {
     // copies as well as saves, and with images copied straight out of a browser.
     Mod+I { spawn "dms" "ipc" "call" "quickCapture" "fromClipboard" "edit"; }
     Mod+U { spawn "dms" "ipc" "call" "quickCapture" "showHistory"; }             // past captures
+    // Per-app output picker, over raw PipeWire streams. Covers apps the DMS media panel
+    // cannot see because they expose no MPRIS interface - mpv without mpv-mpris, games,
+    // anything else making noise. Delete this bind if the patched panel is enough.
+    Mod+Shift+Y { spawn "bash" "-c" "~/.config/niri/audio-output.sh"; }
 
     Mod+R { switch-preset-column-width; }
     Mod+Shift+R { reset-window-height; }

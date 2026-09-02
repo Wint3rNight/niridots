@@ -45,7 +45,7 @@ Inside spotlight: `Ctrl+J` / `Ctrl+K` or `Ctrl+N` / `Ctrl+P` move the selection,
 
 | Key | Does |
 |---|---|
-| `Mod+Shift+A` | **Per-app** audio output picker — move one app, or the default (see Notes) |
+| `Mod+Shift+A` | Audio output toggle, **system-wide** — speaker ⇄ earphones |
 | `Mod+Shift+U` | Cycle power profile (power-saver / balanced / performance) |
 | `Mod+Shift+M` | Night light — manual only, no schedule |
 | `Mod+Shift+Z` | Do not disturb |
@@ -119,6 +119,7 @@ did; `edit` opens the annotation editor instead, which is what swappy did.
 | `Mod+Shift+Print` | Region → **annotate** (plain `Print` already covers region-to-clipboard) |
 | `Mod+I` | Annotate the image already on the clipboard |
 | `Mod+U` | Capture history |
+| `Mod+Shift+Y` | Per-app audio output picker — for apps with no MPRIS (mpv, games) |
 | `F2` / `F3` | Volume down / up |
 | `F6` / `F7` | Brightness down / up |
 | Media keys | Play-pause, next, previous, mute, mic-mute — all work while locked |
@@ -175,13 +176,21 @@ out to `fd --type f . $HOME` on every press — re-walking the whole home direct
 no index — and then opened the result with `xdg-open`. Spotlight's file mode uses the
 dsearch index instead. `rofi-find.sh` and its `find)` case in `rofi-toggle.sh` are gone.
 
-**Audio routing is per-app.** WirePlumber pins an app to whatever output you last moved
-it to (`node.stream.restore-target`), which is what lets Spotify sit on the speaker while
-YouTube plays in the earphones. DMS cannot express that — it has no per-app routing at
-all, and both `dms ipc call audio cycleoutput` and the media panel's picker only change
-the *default sink*, moving every unpinned stream together. `Mod+Shift+A` runs
-`.config/niri/audio-output.sh`, which lists the playing streams and moves the one you
-pick to the next sink; a "Default output" row does the old cycle-everything behaviour.
+**Three layers of audio routing**, because they do different jobs:
+
+- `Mod+Shift+A` — **system-wide** toggle. Changes the default sink, so every stream
+  *without its own pin* follows. This is the "move everything to my headphones" key.
+- **The DMS media panel** (`Mod+M`) — per-player, once `scripts/patch-dms.sh` is applied.
+  Select a player, pick a device, and only that player moves. Needs MPRIS, so it sees
+  Spotify, Zen/Firefox, VLC and haruna — but not mpv unless `mpv-mpris` is installed.
+- `Mod+Shift+Y` — per-app picker over raw PipeWire streams
+  (`.config/niri/audio-output.sh`). Sees everything that makes noise, MPRIS or not.
+
+**Pins beat the default.** WirePlumber remembers an app's output the moment you move it
+by hand (`node.stream.restore-target`), and a pinned app then *ignores* `Mod+Shift+A`
+entirely. That is the feature that lets Spotify stay on the speaker while YouTube plays
+in your ears — but it also means "the toggle stopped working for this one app" usually
+means "that app is pinned". Move it back onto the current default and the pin clears.
 
 Do **not** add a `state.restore-target = "false"` WirePlumber rule to make an app follow
 the default. It disables the save path as well as the restore path, so that app can never
