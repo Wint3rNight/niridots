@@ -28,7 +28,6 @@ trap '[ "$(cat "$STATE" 2>/dev/null)" = "$MODE" ] && rm -f "$STATE"' EXIT
 
 case "$MODE" in
     drun)      rofi -show drun ;;
-    find)      bash ~/.config/niri/rofi-find.sh ;;
     google)    bash ~/.config/niri/rofi-web-search.sh ;;
     calc)      rofi -show calc -modi calc -no-show-match -no-sort ;;
     configs)   bash ~/.config/niri/rofi-configs.sh ;;

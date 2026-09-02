@@ -319,7 +319,9 @@ binds {
     Mod+W { spawn "dms" "ipc" "call" "wallpaper" "next"; }
     Mod+Shift+W { spawn "dms" "ipc" "call" "dash" "toggle" "wallpaper"; }
     Mod+D { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
-    Mod+S { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh find"; }
+    // Mod+S (rofi file search) removed - Mod+Shift+S does the same job through DMS
+    // spotlight, backed by the dsearch index. The rofi one re-walked all of $HOME with
+    // `fd` on every press and handed off to xdg-open.
     Mod+G { spawn "bash" "-c" "~/.config/niri/web-panel.sh chatgpt"; }
     Mod+Shift+G { spawn "bash" "-c" "~/.config/niri/web-panel.sh gemini"; }
     Mod+A { spawn "bash" "-c" "~/.config/niri/rofi-toggle.sh calc"; }
