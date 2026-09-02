@@ -78,8 +78,8 @@ Doing it by hand instead:
   `gtkThemingEnabled` / `qtThemingEnabled` are false. DMS also generates
   `.config/niri/dms/*.kdl` (gaps 4, border 2) — these are **not** `include`d,
   so the settings in `config.kdl` stay authoritative.
-- The lock screen is qylock (`Mod+Shift+X`, and swayidle at 5 min), not the DMS
-  one. Enabling `lockBeforeSuspend` in DMS would stack two lock screens.
+- The lock screen is qylock (`Mod+Shift+X`, and DMS's idle timer at 5 min), not the
+  DMS one. See the idle note below for why `lockBeforeSuspend` is safe to enable.
 - DMS paints the wallpaper. waypaper and mpvpaper are gone. `Mod+W` cycles to
   the next image in the folder with a random transition; `Mod+Shift+W` opens the
   browser. Static images only - DMS has no video/mpv backend and uses plain
@@ -125,18 +125,22 @@ Doing it by hand instead:
 - **Night light is deliberately manual.** `Mod+Shift+M` toggles it;
   `dms ipc call night getSchedule` reports `Automation disabled` and nothing
   here turns that on.
-- **Idle chain and keep-awake.** swayidle drives everything: lock at 5 min (qylock),
-  monitors off at 10, suspend at 15 — the last one only on battery, via
-  `.config/niri/idle-suspend.sh`, because an idle 15 minutes on mains is usually a
-  build or a download. `Mod+Shift+I` runs `.config/niri/idle-toggle.sh`, which stops
-  swayidle outright. It does *not* just call `dms ipc call inhibit`: that does work
-  (it activates a real `zwp_idle_inhibit` via `Quickshell.Wayland.IdleInhibitor` in
-  `DankBarWindow.qml`, and niri honours it — a test `swayidle timeout 3` never fires
-  with it on), but the inhibitor hangs off the **bar surface**, and DMS's own
-  `IdleService.qml` says it "goes inactive whenever the bar surface is occluded
-  (fullscreen windows) or hidden (auto-hide)" — exactly the fullscreen-video and
-  fullscreen-build-log cases you want it for. The script therefore stops swayidle
-  *and* sets the DMS flag, so the shell's own indicators still light up.
+- **Idle is DMS's IdleService, not swayidle** — but it still locks with **qylock**.
+  `customPowerActionLock` points at `lock.sh`, and `Modules/Lock/Lock.qml`'s `lock()`
+  short-circuits to `spawnCustomLocker()` before DMS's own lock screen is ever engaged,
+  so there is no second lock screen and `lockBeforeSuspend` is safe to enable (it is on,
+  giving a systemd sleep inhibitor so a lid close locks first). Timings are in DMS
+  settings, per power source: lock 5 min, monitors off 10 min, suspend 15 min on battery
+  and never on AC. `fadeToLockEnabled` adds a 5 s cancellable warning.
+  `Mod+Shift+I` is `dms ipc call inhibit toggle`, which is reliable here because
+  `IdleService` gates its own monitors on the flag internally (`IdleService.qml:42`) —
+  the bar-surface `zwp_idle_inhibit` it also creates goes inactive behind a fullscreen
+  window, which is why an earlier swayidle-killing script existed. Trade-off taken
+  knowingly: no auto-lock while quickshell is down.
+- **Boot is SDDM**, themed `pixel-night-city` — which is itself a Qylock theme
+  (`/usr/share/sddm/themes/pixel-night-city/metadata.desktop`), so the greeter and the
+  lock screen match without being the same program. `theme.conf` beats
+  `kde_settings.conf` (`breeze`) alphabetically in `/etc/sddm.conf.d/`.
 - **Opening a file from spotlight needs a working MIME handler.** The handler is
   `applications/nvim-kitty.desktop`, installed by `bootstrap.sh` step 9 along with
   the MIME defaults that point at it. It sets `Terminal=false` and calls

@@ -119,33 +119,34 @@ Inside spotlight: `Ctrl+J` / `Ctrl+K` or `Ctrl+N` / `Ctrl+P` move the selection,
 
 ## Notes
 
-**`Mod+Shift+I` runs `.config/niri/idle-toggle.sh`, not plain `dms ipc call inhibit`.**
-The IPC call is not a no-op — setting `SessionService.idleInhibited` activates a real
-`zwp_idle_inhibit` object (`Quickshell.Wayland.IdleInhibitor` in `DankBarWindow.qml`),
-niri honours it, and swayidle stops seeing idle events. Verified: with it on, a test
-`swayidle timeout 3` never fired.
+**Idle is handled by DMS, not swayidle.** `IdleService` drives the chain and locks with
+**qylock** all the same: `customPowerActionLock` points at `lock.sh`, and
+`Modules/Lock/Lock.qml`'s `lock()` spawns that instead of DMS's own lock screen.
 
-The catch is that the inhibitor hangs off the **bar surface**, and DMS's own
-`IdleService.qml` notes it "goes inactive whenever the bar surface is occluded
-(fullscreen windows) or hidden (auto-hide)" — exactly when you want keep-awake, i.e. a
-fullscreen video or a fullscreen build log.
+Timings live in DMS settings (`Mod+Shift+O`), split by power source:
 
-So the script does both: stops swayidle (unconditional, survives fullscreen — and
-swayidle is the only thing that locks or blanks here, since `logind IdleAction` is
-`ignore`), and sets the DMS flag so the shell's indicators light up.
+| | AC | Battery |
+|---|---|---|
+| Lock | 5 min | 5 min |
+| Monitors off | 10 min | 10 min |
+| Suspend | never | 15 min |
 
-**Indicators**, all driven by that flag: the "Keep Awake" tile in the control centre,
-an icon on the control-centre bar button (`controlCenterShowIdleInhibitorIcon`), a
-dedicated `idleInhibitor` bar pill, and an OSD on toggle (`osdIdleInhibitorEnabled`,
-already on). Only the OSD is currently enabled — the tile is not in
-`controlCenterWidgets` and the pill is not in any bar list.
+A 5-second fade warns before the lock lands and any input cancels it
+(`fadeToLockEnabled`). `lockBeforeSuspend` is on, so a lid close or a manual suspend
+locks first — DMS holds a systemd sleep inhibitor named "Lock before suspend".
 
-Idle timers, when on: **lock at 5 min, monitors off at 10, suspend at 15 — battery only**,
-plus a lock before any suspend. The 15-minute suspend goes through
-`.config/niri/idle-suspend.sh`, which exits without doing anything if the AC adapter is
-in: an idle 15 minutes on mains is usually a build or a download, and those die if the
-machine sleeps. It also never fires while something holds a Wayland idle inhibitor, so
-video playback on battery keeps the machine awake by itself.
+`Mod+Shift+I` is the real toggle now: `IdleService` gates its own monitors on that flag
+internally, so unlike a bar-surface `zwp_idle_inhibit` it holds under a fullscreen
+window. Indicators, all driven by it: the "Keep Awake" control-centre tile, an icon on
+the control-centre bar button (`controlCenterShowIdleInhibitorIcon`, currently off), an
+`idleInhibitor` bar pill (not in any bar list), and an OSD on toggle
+(`osdIdleInhibitorEnabled`, on).
+
+**The trade-off:** idle handling now lives inside quickshell. If DMS is not running,
+there is no auto-lock.
+
+Boot is separate: **SDDM** greets you, themed `pixel-night-city` — which is itself a
+qylock theme, so it matches. qylock proper only runs for locking.
 
 **`Mod+Shift+E` quits niri** and is one Shift away from `Mod+E` (yazi). Left as-is
 because it is the niri default, but it is the one dangerous key on this list.

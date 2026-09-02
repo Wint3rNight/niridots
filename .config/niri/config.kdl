@@ -58,10 +58,23 @@ spawn-at-startup "dsearch" "serve"   // file search backend for the DMS launcher
 spawn-at-startup "dms" "run"
 // spawn-at-startup "swaync"   // retired: DMS owns notifications
 // Idle: lock after 5 min, monitors off after 10, and always lock before suspend.
-// Idle chain: lock at 5 min, monitors off at 10, suspend at 15 (battery only - see
-// idle-suspend.sh). Mod+Shift+I stops swayidle outright, which is what "keep awake"
-// means here. Keep this invocation in sync with the restart branch of idle-toggle.sh.
-spawn-at-startup "sh" "-c" "pkill -x swayidle; swayidle -w timeout 300 '$HOME/Projects/qylock/quickshell-lockscreen/lock.sh' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' timeout 900 '$HOME/.config/niri/idle-suspend.sh' before-sleep '$HOME/Projects/qylock/quickshell-lockscreen/lock.sh'"
+// No swayidle. DMS's own IdleService drives the idle chain now, and it locks with
+// qylock all the same: SettingsData.customPowerActionLock points at lock.sh, and
+// Modules/Lock/Lock.qml's lock() spawns that instead of DMS's own lock screen.
+//
+// Timings live in DMS settings (Mod+Shift+O), separately per power source:
+//   acLockTimeout 300 / batteryLockTimeout 300         lock at 5 min
+//   acMonitorTimeout 600 / batteryMonitorTimeout 600   monitors off at 10 min
+//   acSuspendTimeout 0 / batterySuspendTimeout 900     suspend at 15 min, battery only
+//
+// Why this rather than swayidle: the AC/battery split is native instead of hand-rolled,
+// fadeToLockEnabled gives a 5 s grace warning before the lock lands, IdleService knows
+// when media is playing, and Mod+Shift+I becomes reliable - IdleService gates its own
+// monitors internally, so unlike the bar-surface zwp_idle_inhibit it does not go
+// inactive behind a fullscreen window.
+//
+// The trade-off, knowingly taken: idle handling now dies with quickshell. If DMS is not
+// running there is no auto-lock.
 // spawn-at-startup "awww-daemon"
 // RETIRED (DMS has its own clipboard store)
 // spawn-at-startup "sh" "-c" "wl-paste --watch cliphist store"
@@ -365,12 +378,11 @@ binds {
     // All of these are DMS IPC targets that were installed but unbound.
     Mod+Shift+A { spawn "dms" "ipc" "call" "audio" "cycleoutput"; }              // speakers <-> JBL
     Mod+Shift+O { spawn "dms" "ipc" "call" "settings" "focusOrToggle"; }         // DMS settings (Options)
-    // Keep awake through a long build. The script rather than `dms ipc call inhibit
-    // toggle` because DMS attaches its zwp_idle_inhibit to the *bar surface*, which by
-    // its own admission goes inactive under a fullscreen window - precisely when you
-    // want it. The script stops swayidle unconditionally and sets the DMS flag too, so
-    // the shell's indicators still light up. See idle-toggle.sh.
-    Mod+Shift+I { spawn "bash" "-c" "~/.config/niri/idle-toggle.sh"; }
+    // Keep awake through a long build. Now that DMS owns the idle chain this is the
+    // native toggle again: IdleService gates its own monitors on this flag
+    // (IdleService.qml:42), so it holds under a fullscreen window - which the
+    // bar-surface zwp_idle_inhibit did not. Lights the control-centre tile and the OSD.
+    Mod+Shift+I { spawn "dms" "ipc" "call" "inhibit" "toggle"; }
     // Night light stays fully manual: `night getSchedule` reports "Automation disabled"
     // and this binding does not change that. It only flips the filter on and off now.
     Mod+Shift+M { spawn "dms" "ipc" "call" "night" "toggle"; }                   // Moon
