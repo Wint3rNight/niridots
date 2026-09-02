@@ -58,7 +58,10 @@ spawn-at-startup "dsearch" "serve"   // file search backend for the DMS launcher
 spawn-at-startup "dms" "run"
 // spawn-at-startup "swaync"   // retired: DMS owns notifications
 // Idle: lock after 5 min, monitors off after 10, and always lock before suspend.
-spawn-at-startup "sh" "-c" "pkill -x swayidle; swayidle -w timeout 300 '$HOME/Projects/qylock/quickshell-lockscreen/lock.sh' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep '$HOME/Projects/qylock/quickshell-lockscreen/lock.sh'"
+// Idle chain: lock at 5 min, monitors off at 10, suspend at 15 (battery only - see
+// idle-suspend.sh). Mod+Shift+I stops swayidle outright, which is what "keep awake"
+// means here. Keep this invocation in sync with the restart branch of idle-toggle.sh.
+spawn-at-startup "sh" "-c" "pkill -x swayidle; swayidle -w timeout 300 '$HOME/Projects/qylock/quickshell-lockscreen/lock.sh' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' timeout 900 '$HOME/.config/niri/idle-suspend.sh' before-sleep '$HOME/Projects/qylock/quickshell-lockscreen/lock.sh'"
 // spawn-at-startup "awww-daemon"
 // RETIRED (DMS has its own clipboard store)
 // spawn-at-startup "sh" "-c" "wl-paste --watch cliphist store"
@@ -362,10 +365,11 @@ binds {
     // All of these are DMS IPC targets that were installed but unbound.
     Mod+Shift+A { spawn "dms" "ipc" "call" "audio" "cycleoutput"; }              // speakers <-> JBL
     Mod+Shift+O { spawn "dms" "ipc" "call" "settings" "focusOrToggle"; }         // DMS settings (Options)
-    // Keep awake through a long build. NOT `dms ipc call inhibit toggle`: that only flips
-    // a bool gating DMS's own idle monitors, and every DMS timeout here is 0 because
-    // swayidle + qylock do the locking. The script stops swayidle, which is the only
-    // thing on this box that locks or blanks (logind IdleAction is "ignore").
+    // Keep awake through a long build. The script rather than `dms ipc call inhibit
+    // toggle` because DMS attaches its zwp_idle_inhibit to the *bar surface*, which by
+    // its own admission goes inactive under a fullscreen window - precisely when you
+    // want it. The script stops swayidle unconditionally and sets the DMS flag too, so
+    // the shell's indicators still light up. See idle-toggle.sh.
     Mod+Shift+I { spawn "bash" "-c" "~/.config/niri/idle-toggle.sh"; }
     // Night light stays fully manual: `night getSchedule` reports "Automation disabled"
     // and this binding does not change that. It only flips the filter on and off now.

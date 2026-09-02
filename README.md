@@ -125,15 +125,18 @@ Doing it by hand instead:
 - **Night light is deliberately manual.** `Mod+Shift+M` toggles it;
   `dms ipc call night getSchedule` reports `Automation disabled` and nothing
   here turns that on.
-- **`dms ipc call inhibit` is a no-op on this machine**, which is why `Mod+Shift+I`
-  runs `.config/niri/idle-toggle.sh` instead. `inhibit` only flips
-  `SessionService.idleInhibited`, a bool whose one real consumer gates *DMS's own*
-  idle monitors — and every DMS timeout here is `0`, because swayidle + qylock do the
-  locking. DMS creates no `zwp_idle_inhibit` surface and no D-Bus ScreenSaver inhibit,
-  so it cannot reach swayidle; the call changed a control-centre label and nothing
-  else. The script stops swayidle (the only thing that locks or blanks here — logind
-  `IdleAction` is `ignore`) and mirrors the state back into the DMS flag so the
-  "Keep Awake" tile stays truthful.
+- **Idle chain and keep-awake.** swayidle drives everything: lock at 5 min (qylock),
+  monitors off at 10, suspend at 15 — the last one only on battery, via
+  `.config/niri/idle-suspend.sh`, because an idle 15 minutes on mains is usually a
+  build or a download. `Mod+Shift+I` runs `.config/niri/idle-toggle.sh`, which stops
+  swayidle outright. It does *not* just call `dms ipc call inhibit`: that does work
+  (it activates a real `zwp_idle_inhibit` via `Quickshell.Wayland.IdleInhibitor` in
+  `DankBarWindow.qml`, and niri honours it — a test `swayidle timeout 3` never fires
+  with it on), but the inhibitor hangs off the **bar surface**, and DMS's own
+  `IdleService.qml` says it "goes inactive whenever the bar surface is occluded
+  (fullscreen windows) or hidden (auto-hide)" — exactly the fullscreen-video and
+  fullscreen-build-log cases you want it for. The script therefore stops swayidle
+  *and* sets the DMS flag, so the shell's own indicators still light up.
 - **Opening a file from spotlight needs a working MIME handler.** The handler is
   `applications/nvim-kitty.desktop`, installed by `bootstrap.sh` step 9 along with
   the MIME defaults that point at it. It sets `Terminal=false` and calls

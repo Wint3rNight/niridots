@@ -49,7 +49,7 @@ Inside spotlight: `Ctrl+J` / `Ctrl+K` or `Ctrl+N` / `Ctrl+P` move the selection,
 | `Mod+Shift+U` | Cycle power profile (power-saver / balanced / performance) |
 | `Mod+Shift+M` | Night light — manual only, no schedule |
 | `Mod+Shift+Z` | Do not disturb |
-| `Mod+Shift+I` | Keep awake (stops swayidle; see Notes) |
+| `Mod+Shift+I` | Keep awake — no lock, no blanking, no suspend (see Notes) |
 | `Mod+Ctrl+R` | Rename this workspace |
 | `Mod+Ctrl+W` | Window rules for the focused window |
 | `Mod+Ctrl+T` | Next theme |
@@ -119,20 +119,33 @@ Inside spotlight: `Ctrl+J` / `Ctrl+K` or `Ctrl+N` / `Ctrl+P` move the selection,
 
 ## Notes
 
-**`Mod+Shift+I` does not use `dms ipc call inhibit`.** That IPC call only flips
-`SessionService.idleInhibited`, a plain boolean whose sole real consumer is
-`IdleService.qml` — which gates *DMS's own* idle monitors. Every DMS timeout here is `0`
-(`acLockTimeout`, `batteryLockTimeout`, `acMonitorTimeout`, `acSuspendTimeout`, …)
-because locking is done by **swayidle + qylock**, not DMS. DMS never creates a
-`zwp_idle_inhibit` surface or a D-Bus ScreenSaver inhibit, so the IPC call cannot reach
-swayidle: it changed a control-centre label and nothing else.
+**`Mod+Shift+I` runs `.config/niri/idle-toggle.sh`, not plain `dms ipc call inhibit`.**
+The IPC call is not a no-op — setting `SessionService.idleInhibited` activates a real
+`zwp_idle_inhibit` object (`Quickshell.Wayland.IdleInhibitor` in `DankBarWindow.qml`),
+niri honours it, and swayidle stops seeing idle events. Verified: with it on, a test
+`swayidle timeout 3` never fired.
 
-`.config/niri/idle-toggle.sh` stops swayidle instead, which is the only thing on this
-machine that locks or blanks the screen — `logind` `IdleAction` is `ignore`, so nothing
-auto-suspends either. It also mirrors the state into the DMS flag so the "Keep Awake"
-tile in the control centre agrees with reality.
+The catch is that the inhibitor hangs off the **bar surface**, and DMS's own
+`IdleService.qml` notes it "goes inactive whenever the bar surface is occluded
+(fullscreen windows) or hidden (auto-hide)" — exactly when you want keep-awake, i.e. a
+fullscreen video or a fullscreen build log.
 
-Idle timers, when on: **lock at 5 min, monitors off at 10 min**, and lock before suspend.
+So the script does both: stops swayidle (unconditional, survives fullscreen — and
+swayidle is the only thing that locks or blanks here, since `logind IdleAction` is
+`ignore`), and sets the DMS flag so the shell's indicators light up.
+
+**Indicators**, all driven by that flag: the "Keep Awake" tile in the control centre,
+an icon on the control-centre bar button (`controlCenterShowIdleInhibitorIcon`), a
+dedicated `idleInhibitor` bar pill, and an OSD on toggle (`osdIdleInhibitorEnabled`,
+already on). Only the OSD is currently enabled — the tile is not in
+`controlCenterWidgets` and the pill is not in any bar list.
+
+Idle timers, when on: **lock at 5 min, monitors off at 10, suspend at 15 — battery only**,
+plus a lock before any suspend. The 15-minute suspend goes through
+`.config/niri/idle-suspend.sh`, which exits without doing anything if the AC adapter is
+in: an idle 15 minutes on mains is usually a build or a download, and those die if the
+machine sleeps. It also never fires while something holds a Wayland idle inhibitor, so
+video playback on battery keeps the machine awake by itself.
 
 **`Mod+Shift+E` quits niri** and is one Shift away from `Mod+E` (yazi). Left as-is
 because it is the niri default, but it is the one dangerous key on this list.
