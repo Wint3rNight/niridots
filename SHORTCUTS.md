@@ -46,6 +46,7 @@ Inside spotlight: `Ctrl+J` / `Ctrl+K` or `Ctrl+N` / `Ctrl+P` move the selection,
 | Key | Does |
 |---|---|
 | `Mod+Shift+A` | Audio output toggle, **system-wide** — speaker ⇄ earphones |
+| `Mod+Shift+Y` | Per-app audio output picker — for apps with no MPRIS (mpv, games) |
 | `Mod+Shift+U` | Cycle power profile (power-saver / balanced / performance) |
 | `Mod+Shift+M` | Night light — manual only, no schedule |
 | `Mod+Shift+Z` | Do not disturb |
@@ -119,7 +120,6 @@ did; `edit` opens the annotation editor instead, which is what swappy did.
 | `Mod+Shift+Print` | Region → **annotate** (plain `Print` already covers region-to-clipboard) |
 | `Mod+I` | Annotate the image already on the clipboard |
 | `Mod+U` | Capture history |
-| `Mod+Shift+Y` | Per-app audio output picker — for apps with no MPRIS (mpv, games) |
 | `F2` / `F3` | Volume down / up |
 | `F6` / `F7` | Brightness down / up |
 | Media keys | Play-pause, next, previous, mute, mic-mute — all work while locked |
@@ -160,8 +160,7 @@ qylock theme, so it matches. qylock proper only runs for locking.
 **`Mod+Shift+E` quits niri** and is one Shift away from `Mod+E` (yazi). Left as-is
 because it is the niri default, but it is the one dangerous key on this list.
 
-**Free keys**, if you want to bind something: `Mod+Shift+Q`, `Mod+Shift+S`,
-`Mod+Shift+Y`.
+**Free keys**, if you want to bind something: `Mod+Shift+Q`, `Mod+Shift+S`.
 
 **quickCapture was installed but disabled**, which is the whole reason the original
 `Mod+Shift+S` → `quickCapture fromClipboard edit` did nothing: the binding was correct,
@@ -198,6 +197,17 @@ here once and this is what it broke.
 That is hardcoded upstream in `Modules/DankDash/DankDashPopout.qml` (`onPlayerSelected`
 calls `currentPlayer.pause()`), with no setting to turn it off. The cycle button in
 `MediaPlayerTab.qml` does *not* do this — it only calls `setActivePlayer`.
+
+**Touchpad right-drag.** The pad's physical switch appears to be dead, so
+`click-method` (clickfinger or the default button-areas) cannot produce a right-drag —
+both depend on the mechanical press. `drag-lock` is the tap-based substitute: two-finger
+tap, touch again quickly and move, and the right button stays down after you lift your
+fingers; **tap once more to release it**. Ordinary two-finger scrolling is unaffected,
+because drag-lock only engages after a tap-and-drag has begun — but if you forget the
+closing tap, the next gesture continues the drag instead of scrolling.
+
+For window sizing the keyboard is more precise anyway: `Mod+Minus`/`Mod+Equal` for width,
+`Mod+Shift+Minus`/`Mod+Shift+Equal` for height, `Mod+R` to cycle presets.
 
 **Unbound DMS IPC targets** — see `dms ipc` for the full surface. Checked and not worth
 binding here: `systemupdater` (answers "no package manager available"), `outputs`
