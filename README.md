@@ -59,6 +59,10 @@ Doing it by hand instead:
 - `.config/gtk-3.0`, `.config/gtk-4.0`, `.config/qt5ct`, `.config/qt6ct` — app theming.
 - `scripts/` — helpers that live in `~/.local/bin`, plus `bootstrap.sh`.
 - `.config/niri/audio-output.sh` — per-app audio output picker (`Mod+Shift+A`), see Notes.
+- `.config/niri/media-move-output.sh` — moves one MPRIS player's stream; used by the
+  patched DMS media panel.
+- `scripts/patch-dms.sh` — patches two hardcoded DMS media-panel behaviours. **A
+  `dms-shell` package update silently reverts them; re-run it after upgrading.**
 - `.config/spicetify/` — Spotify theming. `Themes/Cathedral/` is hand-written and
   vendored; SpicetifyCat (17 MB upstream clone) is fetched by `bootstrap.sh`.
 - `system/` — the few files that live outside `$HOME`, mirroring their real paths
@@ -112,9 +116,22 @@ Doing it by hand instead:
 
   The actual gap was that DMS has **no per-app routing** — no UI, no IPC.
   `dms ipc call audio cycleoutput` and the media panel's picker both only set the
-  *default sink*. `.config/niri/audio-output.sh` (`Mod+Shift+A`) fills that in with
-  `pactl`: pick a stream, it moves to the next sink and WirePlumber pins it. The picker
-  also has a "Default output" row that does what `cycleoutput` did.
+  *default sink*. Two things fill that in:
+
+  - `.config/niri/audio-output.sh` (`Mod+Shift+A`) — a rofi picker over the live
+    PipeWire streams. Works for **any** app, MPRIS or not, so mpv/VLC/games are covered.
+    A "Default output" row keeps the old cycle-everything behaviour.
+  - `scripts/patch-dms.sh` — patches the DMS media panel so its device list moves only
+    the *selected* player, via `.config/niri/media-move-output.sh`. Resolving an MPRIS
+    player to its PipeWire stream needs two passes: PID first
+    (`GetConnectionUnixProcessID` vs `application.process.id`, which is how Zen/Firefox
+    match), then name, because **Spotify's sink-input carries no PID at all**.
+
+  A stale `Output/Audio:media.role:Movie` entry pinned to the speaker sits in
+  `stream-properties`. It is **inert** on WirePlumber 0.5.16: `formKey()` in
+  `state-stream.lua` only uses the `media.role` key when the role is exactly
+  `Notification`, and otherwise keys on `application.id` / `application.name`. Leftover
+  from an older version; it cannot override video players' routing.
 - `.config/waybar` and `.config/swaync` are the pre-DMS bar and notification
   daemon. Retired but kept as a fallback.
 - **`Mod+Shift+S` used to be dead**, and is now free. It called
