@@ -10,31 +10,6 @@ input {
     touchpad {
         natural-scroll
         tap
-
-        // Right-DRAG (right button held while moving) has no gesture on this machine
-        // without drag-lock. A two-finger tap fires a right *click* and ends - a tap is
-        // instantaneous, it cannot hold a button - and two fingers resting is scroll by
-        // definition. niri exposes no `tap-and-drag` node to tune either; libinput
-        // enables that by default and offers no toggle (`niri validate` rejects it).
-        //
-        // Normally the answer is the pad's physical press, which holds the button for as
-        // long as it is held - `click-method "clickfinger"` was tried for exactly that.
-        // It is useless here: the physical switch on this pad appears to be dead, and
-        // both clickfinger and the default button-areas depend entirely on it. Reverted.
-        //
-        // drag-lock is what is left, and it is purely tap-based:
-        //   two-finger tap, then touch again quickly and move -> right button goes down
-        //   lift your fingers -> the button STAYS down
-        //   tap again -> released
-        // So it only ever engages after a tap-and-drag has begun. Ordinary two-finger
-        // scrolling never enters that state and is unaffected.
-        //
-        // The catch: forget the closing tap and the button stays logically down, so the
-        // next gesture continues the drag instead of scrolling. One tap ends it. niri
-        // takes no mode or timeout argument here ("sticky"/"timeout"/true are all
-        // rejected), so whether libinput 1.31.3 auto-releases after an idle period is
-        // its default behaviour, not something set here.
-        drag-lock
     }
 }
 

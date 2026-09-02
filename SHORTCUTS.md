@@ -198,16 +198,18 @@ That is hardcoded upstream in `Modules/DankDash/DankDashPopout.qml` (`onPlayerSe
 calls `currentPlayer.pause()`), with no setting to turn it off. The cycle button in
 `MediaPlayerTab.qml` does *not* do this — it only calls `setActivePlayer`.
 
-**Touchpad right-drag.** The pad's physical switch appears to be dead, so
-`click-method` (clickfinger or the default button-areas) cannot produce a right-drag —
-both depend on the mechanical press. `drag-lock` is the tap-based substitute: two-finger
-tap, touch again quickly and move, and the right button stays down after you lift your
-fingers; **tap once more to release it**. Ordinary two-finger scrolling is unaffected,
-because drag-lock only engages after a tap-and-drag has begun — but if you forget the
-closing tap, the next gesture continues the drag instead of scrolling.
+**Touchpad right-drag is not available.** The pad's physical switch is dead, so
+`click-method` (clickfinger or the default button-areas) cannot help — both need the
+mechanical press. `drag-lock` was tried as a tap-based substitute and did not work
+either. A two-finger tap still gives a plain right *click*; there is simply no gesture
+for holding the right button down on this hardware.
 
-For window sizing the keyboard is more precise anyway: `Mod+Minus`/`Mod+Equal` for width,
+Use the keyboard for window sizing instead: `Mod+Minus`/`Mod+Equal` for width,
 `Mod+Shift+Minus`/`Mod+Shift+Equal` for height, `Mod+R` to cycle presets.
+
+The log also shows `kernel bug: Touch jump detected and discarded` for this pad
+(Synaptics 06CB:CE81), rate-limited to 5 messages/24h — some touch input is being
+thrown away at the kernel level, independent of any config here.
 
 **Unbound DMS IPC targets** — see `dms ipc` for the full surface. Checked and not worth
 binding here: `systemupdater` (answers "no package manager available"), `outputs`
