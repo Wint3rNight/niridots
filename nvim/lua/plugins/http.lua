@@ -35,8 +35,10 @@ return {
       -- a vertical split leaves both readable.
       display_mode = "split",
       split_direction = "vertical",
-      -- Django and DRF return HTML error pages on a 500; formatting them makes the
-      -- traceback readable instead of one enormous line.
+      -- Response formatting. jq is installed, so JSON bodies come back pretty-printed.
+      -- The html entry needs `prettier`, which is NOT installed here - without it the
+      -- formatter is skipped silently and a Django 500 page arrives as one long line.
+      -- `npm i -g prettier` if you want those readable; everything else works regardless.
       contenttypes = {
         ["application/json"] = { ft = "json", formatter = { "jq", "." } },
         ["text/html"] = { ft = "html", formatter = { "prettier", "--parser", "html" } },

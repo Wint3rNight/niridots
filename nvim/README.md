@@ -28,4 +28,9 @@ The only things the machine itself must provide: `git`, `curl`, `tar`, `unzip`, 
 compiler (`gcc`). Nice to have, all optional: `ripgrep` and `fd` (faster search), `lazygit`,
 `cmake` + `ninja`, `gdb`, `node` (Copilot), the `claude` CLI, `fish`.
 
+The `.http` client (`Space h s`, see GUIDE 3.19) uses `curl` to send and `jq` to
+pretty-print JSON responses — both present. It also wants `prettier` to format HTML
+responses, which is **not** installed; without it a Django 500 page arrives as one long
+line instead of a readable traceback. `npm i -g prettier` if that matters to you.
+
 Read `GUIDE.md` — it teaches this setup from zero, with every shortcut.
