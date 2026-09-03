@@ -86,6 +86,22 @@ environment {
     QT_QPA_PLATFORMTHEME "qt6ct"
     LANG "en_IN.UTF-8"
     DMS_DISABLE_MATUGEN "1"
+
+    // Keep spotlight/popouts visible over fullscreen windows.
+    //
+    // DMS only puts these surfaces on the wlr overlay layer when the frame is
+    // visible (CompositorService.framePeerSurfacesUseOverlayForScreen just
+    // returns frameWindowVisibleForScreen). Going fullscreen deliberately
+    // hides the frame - _computeConnectedFrameBlocked() returns true on a
+    // fullscreen toplevel - so the launcher and popouts silently fell back to
+    // WlrLayer.Top, and niri draws fullscreen windows above the top layer.
+    // Result: Mod+D and friends opened but were buried.
+    //
+    // These pin them to the overlay layer unconditionally. Only the transient
+    // surfaces, not the bar - DMS_DANKBAR_LAYER is left alone so the bar still
+    // gets out of the way in fullscreen.
+    DMS_MODAL_LAYER "overlay"
+    DMS_POPOUT_LAYER "overlay"
 }
 
 prefer-no-csd
