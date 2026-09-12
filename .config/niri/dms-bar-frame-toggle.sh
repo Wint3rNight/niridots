@@ -57,9 +57,11 @@ while :; do
 
     write_frame "$new"
 
-    niri msg action spawn -- dms run >/dev/null 2>&1
+    niri msg action spawn -- "$HOME/.config/niri/dms-run.sh" >/dev/null 2>&1
+    # Since 1.6, connected mode draws the bar inside dms:frame, so there is no
+    # dms:bar surface with the frame on - wait for either.
     for _ in $(seq 1 60); do
-        niri msg -j layers 2>/dev/null | grep -q 'dms:bar' && break
+        niri msg -j layers 2>/dev/null | grep -qE 'dms:(bar|frame)"' && break
         sleep 0.5
     done
 

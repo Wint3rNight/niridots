@@ -178,24 +178,43 @@ dsearch index instead. `rofi-find.sh` and its `find)` case in `rofi-toggle.sh` a
 **Panels stay on top of fullscreen windows** because of two env vars in the niri
 `environment` block: `DMS_MODAL_LAYER=overlay` and `DMS_POPOUT_LAYER=overlay`.
 
-Without them, spotlight and the popouts open *behind* a fullscreen window and only
-appear once you leave fullscreen. The chain: DMS puts these surfaces on the wlr overlay
-layer only when the frame is visible
-(`CompositorService.framePeerSurfacesUseOverlayForScreen` just returns
-`frameWindowVisibleForScreen`), and going fullscreen deliberately hides the frame —
-`_computeConnectedFrameBlocked()` returns true on a fullscreen toplevel. So they fell
-back to `WlrLayer.Top`, and niri draws fullscreen windows above the top layer.
+They were added on 1.5.3, where spotlight and the popouts opened *behind* a fullscreen
+window. DMS put them on the wlr overlay layer only while the frame was visible
+(`CompositorService.framePeerSurfacesUseOverlayForScreen` returns
+`frameWindowVisibleForScreen`), and going fullscreen hid the frame, so they fell back to
+`WlrLayer.Top` — which niri draws below fullscreen windows.
 
-Only the transient surfaces are pinned. `DMS_DANKBAR_LAYER` is left unset on purpose, so
-the bar still drops from overlay to top in fullscreen and gets out of the way — confirmed
-with `niri msg layers`, which is the tool for checking any of this.
+1.6.1 dropped the fullscreen check from `frameWindowVisibleForScreen`, so upstream now
+gets this right on its own and the vars are belt-and-braces. They are kept because they
+cost nothing and pin the behaviour if upstream changes its mind again. `DMS_DANKBAR_LAYER`
+is left unset on purpose so the bar never sits above fullscreen video.
 
 The vars are read once at process start. `dms restart` only sends SIGUSR1 (a QML reload),
-so it will **not** pick up a change here — use `dms kill && dms run`, or just relog.
+so it will **not** pick up a change here — relaunch with
+`dms kill; niri msg action spawn -- ~/.config/niri/dms-run.sh`, or relog.
+`niri msg layers` is the tool for checking which layer anything is on.
 
-There are matching GUI settings for some of this (`launcherUseOverlayLayer`, and the
-bar's own `useOverlayLayer`), but the bar one would pin the bar above fullscreen too,
-which is why the env vars are used instead.
+**Since 1.6.1 the bar has no surface of its own in connected-frame mode** — it is drawn
+inside `dms:frame`. Anything that waits for `dms:bar` must accept `dms:frame` too
+(`dms-bar-frame-toggle.sh` used to hang on its 30s timeout because of this).
+
+**DMS runs through `.config/niri/dms-run.sh`, not plain `dms run`.** Since 1.6 the QML is
+embedded in `/usr/bin/dms` and unpacked to `$XDG_RUNTIME_DIR/danklinux-shell/<hash>` on
+each launch, so the old approach of editing `/usr/share/quickshell/dms` no longer
+exists. The script keeps a patched copy in `~/.local/share/dms-patched-ui`, tagged with
+`dms version`, and runs `dms run -c` on it.
+
+- After a DMS update the tag mismatches: it starts stock, copies the UI that launch
+  unpacked, re-applies the patches and swaps over. One short reload, once per update.
+- If a patch anchor has vanished (upstream rewrote that code) it stays stock rather than
+  run half-patched, and says so in `$XDG_RUNTIME_DIR/dms-run.log`.
+- Force a rebuild: `rm ~/.local/share/dms-patched-ui/.dms-version`, then relaunch.
+
+Current patches:
+
+- **no-pause** — `MprisController.switchActivePlayer` pauses the player you switch away
+  from (both the dash media dropdown and the island player list go through it). Removed,
+  so picking another player is only a focus change.
 
 **Two layers of audio routing**, because they do different jobs:
 

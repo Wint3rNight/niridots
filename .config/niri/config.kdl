@@ -55,7 +55,8 @@ layout {
 }
 
 spawn-at-startup "dsearch" "serve"   // file search backend for the DMS launcher
-spawn-at-startup "dms" "run"
+// dms-run.sh = `dms run` from a patched copy of the embedded UI (see the script).
+spawn-at-startup "/home/winter/.config/niri/dms-run.sh"
 // spawn-at-startup "swaync"   // retired: DMS owns notifications
 // Idle: lock after 5 min, monitors off after 10, and always lock before suspend.
 // No swayidle. DMS's own IdleService drives the idle chain now, and it locks with
