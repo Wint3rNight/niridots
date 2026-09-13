@@ -202,6 +202,14 @@ Check with `niri msg layers`: with a fullscreen window up, an open `dms:dash` /
 inside `dms:frame`. Anything that waits for `dms:bar` must accept `dms:frame` too
 (`dms-bar-frame-toggle.sh` used to hang on its 30s timeout because of this).
 
+**`Mod+Shift+B` switches frame/bar live in ~0.5s** instead of restarting DMS. DMS 1.6 can
+change `frameEnabled` at runtime, but it waits for niri to reload after it rewrites
+`~/.config/niri/dms/layout.kdl`. That file is not included in our config (it would
+override `gaps 5`), so the script reloads niri itself with
+`niri msg action load-config-file` — only *after* the file is rewritten, since an earlier
+reload is ignored and leaves DMS stuck. It falls back to a full restart if the swap
+doesn't land within 3s.
+
 **DMS runs through `.config/niri/dms-run.sh`, not plain `dms run`.** Since 1.6 the QML is
 embedded in `/usr/bin/dms` and unpacked to `$XDG_RUNTIME_DIR/danklinux-shell/<hash>` on
 each launch, so the old approach of editing `/usr/share/quickshell/dms` no longer

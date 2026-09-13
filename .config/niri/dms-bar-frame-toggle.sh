@@ -1,73 +1,62 @@
 #!/usr/bin/env bash
-# Toggle the frame (and with it, the space the bar reserves).
+# Toggle the frame (and with it, the space the bar reserves). ~0.5s, no DMS restart.
 #
-# WHY THIS RELOADS DMS: frameEnabled is only read when the shell starts.
-# Verified - setting it true at runtime produces zero frame surfaces until a
-# restart. So a ~8s reload is unavoidable.
+# HOW: since 1.6, DMS can switch frameEnabled live - but it holds the old surfaces
+# until the compositor confirms the new layout. It writes ~/.config/niri/dms/layout.kdl
+# and waits for niri's ConfigLoaded event. That file is deliberately NOT included in
+# our niri config (it would override gaps/radius), so niri never reloads on its own and
+# DMS waited forever - which is why this script used to kill and relaunch DMS (~8s).
 #
-# WHY THE PENDING FILE: the reload takes long enough that a second press lands
-# mid-flight. Silently dropping it made the key feel dead. Now a press during a
-# reload is queued, and the running instance toggles again when it finishes -
-# so pressing twice ends up back where you started, as you'd expect.
+# So: set the value over IPC, wait for DMS to rewrite layout.kdl, then reload niri's
+# own config. niri re-reads config.kdl unchanged (gaps stay ours), emits ConfigLoaded,
+# and DMS swaps frame <-> bar in place. The reload must come AFTER the write: an
+# earlier ConfigLoaded is ignored and leaves DMS waiting again.
 #
-# State is read from settings.json, not IPC, because DMS is down for part of
-# this and `dms ipc call settings get` returns nothing then.
-#
-# Mod+B stays a plain, instant bar toggle. This is the heavier one.
+# Falls back to the old full restart if DMS isn't running or the swap doesn't land.
 
 set -u
 
-SETTINGS="$HOME/.config/DankMaterialShell/settings.json"
 RUN="${XDG_RUNTIME_DIR:-/tmp}"
-LOCK="$RUN/dms-frame-toggle.lock"
-PENDING="$RUN/dms-frame-toggle.pending"
+LAYOUT="$HOME/.config/niri/dms/layout.kdl"
 
-exec 9>"$LOCK"
-if ! flock -n 9; then
-    : > "$PENDING"          # a reload is in flight - ask it to toggle once more
+exec 9>"$RUN/dms-frame-toggle.lock"
+flock -w 5 9 || exit 0      # serialize presses; each one is quick now
+
+layers() { niri msg -j layers 2>/dev/null; }
+
+cur=$(dms ipc call settings get frameEnabled 2>/dev/null)
+if [ "$cur" != true ] && [ "$cur" != false ]; then
+    # DMS is down or not answering - flip the stored value and start it.
+    python3 - "$HOME/.config/DankMaterialShell/settings.json" <<'PY'
+import json, sys
+p = sys.argv[1]; d = json.load(open(p))
+d['frameEnabled'] = not d.get('frameEnabled', False)
+json.dump(d, open(p, 'w'), indent=2)
+PY
+    pgrep -x qs >/dev/null || niri msg action spawn -- "$HOME/.config/niri/dms-run.sh"
     exit 0
 fi
+[ "$cur" = true ] && new=false || new=true
 
-read_frame() {
-    python3 -c "
-import json
-try: print(json.load(open('$SETTINGS')).get('frameEnabled', False))
-except Exception: print('False')"
-}
+before=$(stat -c %y "$LAYOUT" 2>/dev/null)
+dms ipc call settings set frameEnabled "$new" >/dev/null
+for _ in $(seq 1 60); do
+    [ "$(stat -c %y "$LAYOUT" 2>/dev/null)" != "$before" ] && break
+    sleep 0.05
+done
+niri msg action load-config-file >/dev/null 2>&1
 
-write_frame() {
-    python3 -c "
-import json
-p='$SETTINGS'
-d=json.load(open(p))
-d['frameEnabled'] = ('$1' == 'true')
-json.dump(d, open(p,'w'), indent=2)"
-}
-
-while :; do
-    rm -f "$PENDING"
-
-    cur=$(read_frame)
-    [ "$cur" = "True" ] && new=false || new=true
-
-    # Stop every instance first, so a stale shell can never survive into a
-    # second stacked bar, then write the setting while nothing can overwrite it.
-    for p in $(pgrep -x qs) $(pgrep -x dms); do kill "$p" 2>/dev/null; done
-    for _ in $(seq 1 30); do pgrep -x qs >/dev/null 2>&1 || break; sleep 0.2; done
-
-    write_frame "$new"
-
-    niri msg action spawn -- "$HOME/.config/niri/dms-run.sh" >/dev/null 2>&1
-    # Since 1.6, connected mode draws the bar inside dms:frame, so there is no
-    # dms:bar surface with the frame on - wait for either.
-    for _ in $(seq 1 60); do
-        niri msg -j layers 2>/dev/null | grep -qE 'dms:(bar|frame)"' && break
-        sleep 0.5
-    done
-
-    # Another press arrived while we were reloading - honour it.
-    [ -e "$PENDING" ] || break
+# Frame on: a dms:frame surface and no standalone bar. Frame off: a dms:bar surface.
+for _ in $(seq 1 60); do
+    if [ "$new" = true ]; then
+        layers | grep -q '"dms:frame"' && ! layers | grep -q '"dms:bar"' && exit 0
+    else
+        layers | grep -q '"dms:bar"' && ! layers | grep -q '"dms:frame"' && exit 0
+    fi
+    sleep 0.05
 done
 
-sleep 1
-dms notify --title "Frame" --message "$new" 2>/dev/null || true
+# Swap didn't land in 3s - do it the slow, sure way.
+dms kill >/dev/null 2>&1
+for _ in $(seq 1 30); do pgrep -x qs >/dev/null 2>&1 || break; sleep 0.2; done
+niri msg action spawn -- "$HOME/.config/niri/dms-run.sh" >/dev/null 2>&1
