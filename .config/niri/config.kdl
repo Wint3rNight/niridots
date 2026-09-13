@@ -91,21 +91,10 @@ environment {
     LANG "en_IN.UTF-8"
     DMS_DISABLE_MATUGEN "1"
 
-    // Keep spotlight/popouts visible over fullscreen windows.
-    //
-    // DMS only puts these surfaces on the wlr overlay layer when the frame is
-    // visible (CompositorService.framePeerSurfacesUseOverlayForScreen just
-    // returns frameWindowVisibleForScreen). Going fullscreen deliberately
-    // hides the frame - _computeConnectedFrameBlocked() returns true on a
-    // fullscreen toplevel - so the launcher and popouts silently fell back to
-    // WlrLayer.Top, and niri draws fullscreen windows above the top layer.
-    // Result: Mod+D and friends opened but were buried.
-    //
-    // These pin them to the overlay layer unconditionally. Only the transient
-    // surfaces, not the bar - DMS_DANKBAR_LAYER is left alone so the bar still
-    // gets out of the way in fullscreen.
-    DMS_MODAL_LAYER "overlay"
-    DMS_POPOUT_LAYER "overlay"
+    // No DMS_MODAL_LAYER / DMS_POPOUT_LAYER here any more. Pinning panels to the overlay
+    // layer split them off the connected frame (a separate window, visible seam/strip).
+    // Fullscreen visibility is handled by a patch in dms-run.sh instead: overlay only
+    // while a fullscreen window is focused on that screen.
 }
 
 prefer-no-csd
@@ -542,21 +531,24 @@ binds {
     Mod+Shift+Print { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "region" "edit"; }
 
     // Volume control
-    F2 { spawn "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && ~/.local/bin/volume-notify.sh"; }
-    F3 { spawn "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ && ~/.local/bin/volume-notify.sh"; }
+    F2 { spawn "dms" "ipc" "call" "audio" "decrement" "5"; }
+    F3 { spawn "dms" "ipc" "call" "audio" "increment" "5"; }
 
     // Brightness control
-    F6 { spawn "sh" "-c" "brightnessctl set 5%- && ~/.local/bin/brightness-notify.sh"; }
-    F7 { spawn "sh" "-c" "brightnessctl set 5%+ && ~/.local/bin/brightness-notify.sh"; }
+    F6 { spawn "dms" "ipc" "call" "brightness" "decrement" "5" ""; }
+    F7 { spawn "dms" "ipc" "call" "brightness" "increment" "5" ""; }
 
     // Hardware media keys (also work while the screen is locked)
-    XF86AudioRaiseVolume  allow-when-locked=true { spawn "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ && ~/.local/bin/volume-notify.sh"; }
-    XF86AudioLowerVolume  allow-when-locked=true { spawn "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && ~/.local/bin/volume-notify.sh"; }
-    XF86AudioMute         allow-when-locked=true { spawn "sh" "-c" "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && ~/.local/bin/volume-notify.sh"; }
+    // Volume/brightness (these and the F-key copies above) go through DMS so its own OSD
+    // shows. The old *-notify.sh scripts relied on swaync replacing notifications via
+    // x-canonical-private-synchronous; DMS ignores that hint, so every press stacked a popup.
+    XF86AudioRaiseVolume  allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "increment" "5"; }
+    XF86AudioLowerVolume  allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "decrement" "5"; }
+    XF86AudioMute         allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "mute"; }
     XF86AudioMicMute      allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
     XF86AudioPlay         allow-when-locked=true { spawn "playerctl" "play-pause"; }
     XF86AudioNext         allow-when-locked=true { spawn "playerctl" "next"; }
     XF86AudioPrev         allow-when-locked=true { spawn "playerctl" "previous"; }
-    XF86MonBrightnessUp   allow-when-locked=true { spawn "sh" "-c" "brightnessctl set 5%+ && ~/.local/bin/brightness-notify.sh"; }
-    XF86MonBrightnessDown allow-when-locked=true { spawn "sh" "-c" "brightnessctl set 5%- && ~/.local/bin/brightness-notify.sh"; }
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "dms" "ipc" "call" "brightness" "increment" "5" ""; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "dms" "ipc" "call" "brightness" "decrement" "5" ""; }
 }

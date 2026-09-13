@@ -175,24 +175,28 @@ out to `fd --type f . $HOME` on every press — re-walking the whole home direct
 no index — and then opened the result with `xdg-open`. Spotlight's file mode uses the
 dsearch index instead. `rofi-find.sh` and its `find)` case in `rofi-toggle.sh` are gone.
 
-**Panels stay on top of fullscreen windows** because of two env vars in the niri
-`environment` block: `DMS_MODAL_LAYER=overlay` and `DMS_POPOUT_LAYER=overlay`.
+**Panels stay on top of fullscreen windows** through the `fullscreen-overlay` patch in
+`dms-run.sh`, not through env vars. Popouts, spotlight and connected modals go on the wlr
+overlay layer only while a fullscreen window is on their screen's current workspace, and
+on the top layer otherwise.
 
-They were added on 1.5.3, where spotlight and the popouts opened *behind* a fullscreen
-window. DMS put them on the wlr overlay layer only while the frame was visible
-(`CompositorService.framePeerSurfacesUseOverlayForScreen` returns
-`frameWindowVisibleForScreen`), and going fullscreen hid the frame, so they fell back to
-`WlrLayer.Top` — which niri draws below fullscreen windows.
+Both fixed choices are wrong, which is why it has to switch:
 
-1.6.1 dropped the fullscreen check from `frameWindowVisibleForScreen`, so upstream now
-gets this right on its own and the vars are belt-and-braces. They are kept because they
-cost nothing and pin the behaviour if upstream changes its mind again. `DMS_DANKBAR_LAYER`
-is left unset on purpose so the bar never sits above fullscreen video.
+- **Always top** — niri draws fullscreen windows above the top layer, so `Mod+D` and
+  friends open *behind* a fullscreen window.
+- **Always overlay** (the old `DMS_MODAL_LAYER` / `DMS_POPOUT_LAYER=overlay` in the niri
+  `environment` block) — in 1.6.1 a connected popout only merges into the frame when it
+  is on the top layer (`frameOwnsConnectedChrome` requires `WlrLayer.Top`). On overlay it
+  becomes a separate window beside the frame, which showed up as a bright strip between
+  the frame and the panel. Those env vars are gone for that reason.
 
-The vars are read once at process start. `dms restart` only sends SIGUSR1 (a QML reload),
-so it will **not** pick up a change here — relaunch with
-`dms kill; niri msg action spawn -- ~/.config/niri/dms-run.sh`, or relog.
-`niri msg layers` is the tool for checking which layer anything is on.
+Upstream's `CompositorService.fullscreenToplevelOnScreen` can't be used as-is: it also
+requires the fullscreen window to be focused, and opening a panel takes focus away, so the
+panel flipped straight back underneath. The patch adds `dotfilesFullscreenOnScreen`, which
+ignores focus but only counts the current workspace.
+
+Check with `niri msg layers`: with a fullscreen window up, an open `dms:dash` /
+`dms:spotlight` must be under *Overlay*; with none, they draw inside `dms:frame` (Top).
 
 **Since 1.6.1 the bar has no surface of its own in connected-frame mode** — it is drawn
 inside `dms:frame`. Anything that waits for `dms:bar` must accept `dms:frame` too
@@ -212,9 +216,17 @@ exists. The script keeps a patched copy in `~/.local/share/dms-patched-ui`, tagg
 
 Current patches:
 
+- **fullscreen-overlay** — see "Panels stay on top of fullscreen windows" above.
 - **no-pause** — `MprisController.switchActivePlayer` pauses the player you switch away
   from (both the dash media dropdown and the island player list go through it). Removed,
   so picking another player is only a focus change.
+
+**Volume and brightness keys go through `dms ipc call audio|brightness`**, so DMS's own
+OSD shows. The old `~/.local/bin/volume-notify.sh` / `brightness-notify.sh` sent a
+notification with the swaync-only `x-canonical-private-synchronous` hint to replace the
+previous one; DMS ignores it, so every press stacked a new popup. swaync itself is masked
+(`systemctl --user mask swaync`) — its D-Bus service file let KDE Connect wake it at login
+before DMS registered, and it then held `org.freedesktop.Notifications`.
 
 **Two layers of audio routing**, because they do different jobs:
 

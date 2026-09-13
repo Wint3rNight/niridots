@@ -19,6 +19,14 @@
 #   no-pause  MprisController.switchActivePlayer pauses the player you switch
 #             away from (dash media dropdown and the island player list both
 #             call it). Removed, so switching players is only a focus change.
+#
+#   fullscreen-overlay  Popouts, spotlight and connected modals use the wlr
+#             overlay layer only while a fullscreen window is on their screen's
+#             current workspace, and the top layer otherwise. Top keeps them
+#             inside the connected frame (one seamless glass surface); overlay
+#             keeps them above fullscreen windows, which niri draws over the
+#             top layer. The old always-overlay env vars (DMS_POPOUT_LAYER /
+#             DMS_MODAL_LAYER) split panels off the frame and left a seam.
 
 set -u
 
@@ -59,11 +67,46 @@ if ! python3 - "$tmp" >>"$LOG" 2>&1 <<'EOF'
 import pathlib, sys
 
 root = pathlib.Path(sys.argv[1])
+FS = "CompositorService.dotfilesFullscreenOnScreen"
 patches = [
+    # Helper for the fullscreen-overlay patches below. Upstream's
+    # fullscreenToplevelOnScreen also requires the window to be focused - but
+    # opening a panel takes focus from the fullscreen window, which flipped the
+    # panel straight back under it. This asks "is a fullscreen window on this
+    # screen's current workspace" instead, focused or not.
+    ("fullscreen-overlay helper", "Services/CompositorService.qml",
+     "    function fullscreenToplevelOnScreen(screenOrName) {\n",
+     "    // dotfiles-patch fullscreen-overlay (see dms-run.sh)\n"
+     "    function dotfilesFullscreenOnScreen(screenOrName) {\n"
+     "        const screenName = _screenName(screenOrName);\n"
+     "        if (!screenName || !ToplevelManager.toplevels?.values)\n"
+     "            return false;\n"
+     "        const onScreen = ToplevelManager.toplevels.values.filter(t => _toplevelOnScreen(t, screenName));\n"
+     "        return filterCurrentWorkspace(onScreen, screenName).some(t => t?.fullscreen);\n"
+     "    }\n\n"
+     "    function fullscreenToplevelOnScreen(screenOrName) {\n"),
+
     ("no-pause", "Services/MprisController.qml",
      "        if (current && current !== player && current.canPause)\n"
      "            current.pause();\n",
      "        // dotfiles-patch no-pause: upstream pauses the player you switch away from here.\n"),
+
+    # fullscreen-overlay: panels go on the overlay layer only while a fullscreen
+    # window is focused on their screen. Always-overlay (the old DMS_*_LAYER env
+    # vars) splits them off the connected frame, leaving a visible seam; always-top
+    # buries them under fullscreen windows, which niri draws above the top layer.
+    ("fullscreen-overlay popouts", "Widgets/DankPopoutConnected.qml",
+     'LayerShell.fromEnv("DMS_POPOUT_LAYER", root.triggerUsesOverlayLayer ? WlrLayer.Overlay : WlrLayer.Top, {',
+     f'LayerShell.fromEnv("DMS_POPOUT_LAYER", (root.triggerUsesOverlayLayer || {FS}(root.screen)) ? WlrLayer.Overlay : WlrLayer.Top, {{'),
+    ("fullscreen-overlay spotlight", "Modals/DankLauncherV2/DankLauncherV2ModalSpotlight.qml",
+     'LayerShell.fromEnv("DMS_MODAL_LAYER", root.usesOverlayLayer ? WlrLayer.Overlay : WlrLayer.Top, {',
+     f'LayerShell.fromEnv("DMS_MODAL_LAYER", (root.usesOverlayLayer || {FS}(root.effectiveScreen)) ? WlrLayer.Overlay : WlrLayer.Top, {{'),
+    ("fullscreen-overlay launcher", "Modals/DankLauncherV2/DankLauncherV2ModalConnected.qml",
+     'LayerShell.fromEnv("DMS_MODAL_LAYER", root.usesOverlayLayer ? WlrLayer.Overlay : WlrLayer.Top, {',
+     f'LayerShell.fromEnv("DMS_MODAL_LAYER", (root.usesOverlayLayer || {FS}(root.effectiveScreen)) ? WlrLayer.Overlay : WlrLayer.Top, {{'),
+    ("fullscreen-overlay modals", "Modals/Common/DankModalConnected.qml",
+     'root.useOverlayLayer ? WlrLayer.Overlay : LayerShell.fromEnv("DMS_MODAL_LAYER", WlrLayer.Top, {',
+     f'(root.useOverlayLayer || {FS}(root.effectiveScreen)) ? WlrLayer.Overlay : LayerShell.fromEnv("DMS_MODAL_LAYER", WlrLayer.Top, {{'),
 ]
 for name, rel, old, new in patches:
     path = root / rel
