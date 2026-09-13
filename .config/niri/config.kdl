@@ -79,7 +79,10 @@ spawn-at-startup "/home/winter/.config/niri/dms-run.sh"
 // spawn-at-startup "awww-daemon"
 // RETIRED (DMS has its own clipboard store)
 // spawn-at-startup "sh" "-c" "wl-paste --watch cliphist store"
-spawn-at-startup "sh" "-c" "/home/winter/.config/niri/launch-dashboard.sh"
+// Held until DMS has a surface up (30s cap), so kitty + zellij + btop/cava/cmatrix/
+// lazygit/gh-dash don't fight quickshell for the CPU at login. Measured: DMS takes
+// ~4s to show its frame alone and ~8s when the dashboard starts in the same second.
+spawn-at-startup "sh" "-c" "for i in $(seq 60); do niri msg layers | grep -qE 'dms:(bar|frame)' && break; sleep 0.5; done; exec /home/winter/.config/niri/launch-dashboard.sh"
 
 // Qt apps ignore GTK settings entirely; this points them at qt6ct/qt5ct
 // so they pick up the Cathedral palette instead of default Fusion grey.
